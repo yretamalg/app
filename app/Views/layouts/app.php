@@ -11,15 +11,14 @@
     <meta name="description" content="<?= $description ?? 'Sistema de gestión de rifas para Chile' ?>">
     <meta name="keywords" content="<?= $keywords ?? 'rifas, chile, sorteos, premios' ?>">
     
-    <!-- Open Graph -->
-    <meta property="og:title" content="<?= $title ?? 'Rifas Chile' ?>">
+    <!-- Open Graph -->    <meta property="og:title" content="<?= $title ?? 'Rifas Chile' ?>">
     <meta property="og:description" content="<?= $description ?? 'Sistema de gestión de rifas para Chile' ?>">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="<?= $_ENV['APP_URL'] . $_SERVER['REQUEST_URI'] ?>">
+    <meta property="og:url" content="<?= url(currentUrl()) ?>">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="<?= $this->asset('css/app.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,9 +38,10 @@
     <?php if ($isLoggedIn): ?>
         <?php $this->include('layouts.navigation'); ?>
     <?php endif; ?>    <!-- Main Content -->
-    <main class="<?= $isLoggedIn ? 'ml-64 pt-16' : '' ?> min-h-screen p-6">
-        <!-- Security Warning -->
-        <?php if ($this->flash('security_warning')): ?>
+    <main class="<?= $isLoggedIn ? 'ml-64 pt-16' : '' ?> min-h-screen p-6">        <!-- Security Warning -->
+        <?php 
+        $session = new Session();
+        if ($session->getFlash('security_warning')): ?>
             <div class="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-400 rounded-lg backdrop-blur-sm">
                 <div class="flex items-center">
                     <svg class="h-5 w-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,22 +49,21 @@
                     </svg>
                     <div>
                         <h3 class="text-red-300 font-bold">¡ADVERTENCIA DE SEGURIDAD!</h3>
-                        <p class="text-red-100 text-sm mt-1"><?= $this->flash('security_warning') ?></p>
+                        <p class="text-red-100 text-sm mt-1"><?= $session->getFlash('security_warning') ?></p>
                     </div>
                 </div>
             </div>
         <?php endif; ?>
-        
-        <!-- Flash Messages -->
-        <?php if ($this->success()): ?>
+          <!-- Flash Messages -->
+        <?php if ($session->getFlash('success')): ?>
             <div class="toast-success mb-6 p-4 rounded-lg">
-                <p class="text-white"><?= $this->success() ?></p>
+                <p class="text-white"><?= $session->getFlash('success') ?></p>
             </div>
         <?php endif; ?>
 
-        <?php if ($this->message()): ?>
+        <?php if ($session->getFlash('message')): ?>
             <div class="toast-info mb-6 p-4 rounded-lg">
-                <p class="text-white"><?= $this->message() ?></p>
+                <p class="text-white"><?= $session->getFlash('message') ?></p>
             </div>
         <?php endif; ?>
 
@@ -76,11 +75,9 @@
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
     <!-- Modals Container -->
-    <div id="modals-container"></div>
-
-    <!-- JavaScript -->
-    <script src="<?= $this->asset('js/ui.js') ?>"></script>
-    <script src="<?= $this->asset('js/logic.js') ?>"></script>
+    <div id="modals-container"></div>    <!-- JavaScript -->
+    <script src="<?= asset('js/ui.js') ?>"></script>
+    <script src="<?= asset('js/logic.js') ?>"></script>
     
     <!-- Additional JavaScript -->
     <?php if (isset($additionalJS)): ?>

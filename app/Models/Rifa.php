@@ -166,10 +166,10 @@ class Rifa extends Model {
 
     public function getByAdmin($adminId) {
         return $this->where('admin_id', $adminId);
-    }
-
-    public function getPublic() {
-        return $this->where('estado', 'IN', ['publicada', 'en_curso']);
+    }    public function getPublic() {
+        $sql = "SELECT * FROM {$this->table} WHERE publico = 1 AND activa = 1 AND estado = 'activa'";
+        $stmt = $this->db->query($sql, []);
+        return $stmt->fetchAll();
     }
 
     public function getBySlugPublic($slug) {
@@ -325,18 +325,15 @@ class Rifa extends Model {
                     GROUP BY r.id";
 
             $stmt = $this->db->query($sql, [$rifaId]);
-            return $stmt->fetch();
-        } else {
+            return $stmt->fetch();        } else {
             // General rifa stats
             $sql = "SELECT 
                         COUNT(*) as total_rifas,
-                        SUM(CASE WHEN estado = 'publicada' THEN 1 ELSE 0 END) as rifas_publicadas,
-                        SUM(CASE WHEN estado = 'en_curso' THEN 1 ELSE 0 END) as rifas_en_curso,
+                        SUM(CASE WHEN activa = 1 AND estado = 'activa' THEN 1 ELSE 0 END) as rifas_activas,
                         SUM(CASE WHEN estado = 'finalizada' THEN 1 ELSE 0 END) as rifas_finalizadas,
                         COALESCE(SUM(cantidad_numeros), 0) as total_numeros,
-                        COALESCE(AVG(valor_numero), 0) as precio_promedio
-                    FROM rifas 
-                    WHERE deleted_at IS NULL";
+                        COALESCE(AVG(precio), 0) as precio_promedio
+                    FROM rifas";
 
             $stmt = $this->db->query($sql);
             return $stmt->fetch();
@@ -406,7 +403,6 @@ class Rifa extends Model {
     public function getActivas($limit = 10)
     {
         $sql = "SELECT * FROM {$this->table} WHERE estado = 'activa' AND deleted_at IS NULL ORDER BY created_at DESC LIMIT ?";
-        $stmt = $this->db->query($sql, [$limit]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->db->query($sql, [$limit]);        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

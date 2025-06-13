@@ -10,13 +10,12 @@ class HomeController extends Controller {
         
         // Get general statistics
         $stats = $rifaModel->getStats();
-        
-        $this->render('home.index', [
+          $this->render('home.index', [
             'title' => 'Rifas Chile - Sistema de Gestión de Rifas',
             'description' => 'Descubre las mejores rifas de Chile. Sistema confiable y seguro para participar en sorteos.',
             'keywords' => 'rifas chile, sorteos, premios, participar, números',
             'rifas' => $rifasPublicas,
             'stats' => $stats
-        ], 'public');
+        ], 'app');
     }
 }

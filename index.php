@@ -95,7 +95,25 @@ if (file_exists(__DIR__ . '/install/')) {
     exit;
 }
 
-// Todo está correcto, redirigir a public/
-header('Location: public/');
+// Todo está correcto, procesar la ruta y cargar la aplicación
+$requestUri = $_SERVER['REQUEST_URI'];
+$basePath = '/app';
+
+// Remover el path base del URI de la request
+if (strpos($requestUri, $basePath) === 0) {
+    $path = substr($requestUri, strlen($basePath));
+    $path = ltrim($path, '/');
+    
+    // Simular la estructura como si estuviéramos en public/
+    $_SERVER['SCRIPT_NAME'] = '/app/public/index.php';
+    $_SERVER['REQUEST_URI'] = '/app/public/' . $path;
+    
+    // Cargar la aplicación desde public/
+    chdir(__DIR__ . '/public');
+    require_once __DIR__ . '/public/index.php';
+} else {
+    // Fallback: redirigir a public/
+    header('Location: public/');
+}
 exit;
 ?>

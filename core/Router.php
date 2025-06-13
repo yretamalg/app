@@ -3,6 +3,34 @@
 class Router {
     private $routes = [];
     private $namedRoutes = [];
+    private $baseUrl = '';
+    
+    public function __construct() {
+        // Detectar la URL base automáticamente
+        $this->baseUrl = $this->detectBaseUrl();
+    }
+    
+    private function detectBaseUrl() {
+        $requestUri = $_SERVER['REQUEST_URI'];
+        $scriptName = $_SERVER['SCRIPT_NAME'];
+        
+        // Obtener el directorio base
+        $basePath = dirname($scriptName);
+        if ($basePath === '/') {
+            $basePath = '';
+        }
+        
+        // Para nuestra aplicación específica, usar /app como base
+        if (strpos($requestUri, '/app/') === 0) {
+            return '/app';
+        }
+        
+        return $basePath;
+    }
+    
+    public function getBaseUrl() {
+        return $this->baseUrl;
+    }
     
     public function addRoute($method, $pattern, $handler, $name = null) {
         $this->routes[] = [
@@ -98,8 +126,7 @@ class Router {
     
     public function url($name, $params = []) {
         if (!isset($this->namedRoutes[$name])) {
-            throw new Exception("Ruta con nombre '{$name}' no encontrada");
-        }
+            throw new Exception("Ruta con nombre '{$name}' no encontrada");        }
         
         $pattern = $this->namedRoutes[$name];
         
@@ -108,7 +135,7 @@ class Router {
             $pattern = str_replace("{{$key}}", $value, $pattern);
         }
         
-        return $_ENV['APP_URL'] . $pattern;
+        return $this->baseUrl . $pattern;
     }
     
     private function handle404() {

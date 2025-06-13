@@ -26,9 +26,8 @@ $meta_description = $meta_description ?? 'La plataforma líder de rifas en Chile
             <p class="max-w-3xl mx-auto text-xl text-gray-300 mb-8">
                 La plataforma más segura y transparente de Chile para participar en rifas. 
                 Premios increíbles, sorteos en vivo y total transparencia.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/rifas" 
+            </p>            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="<?= url('rifas') ?>" 
                    class="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl text-white bg-blue-600 bg-opacity-80 hover:bg-opacity-100 backdrop-blur-sm transition-all duration-200 transform hover:scale-105">
                     <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
@@ -36,7 +35,7 @@ $meta_description = $meta_description ?? 'La plataforma líder de rifas en Chile
                     Ver Rifas Activas
                 </a>
                 <?php if (!$isLoggedIn): ?>
-                <a href="/register" 
+                <a href="<?= url('register') ?>" 
                    class="inline-flex items-center px-8 py-4 border border-white border-opacity-30 text-lg font-medium rounded-xl text-white bg-white bg-opacity-10 hover:bg-opacity-20 backdrop-blur-sm transition-all duration-200">
                     <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
@@ -143,10 +142,9 @@ $meta_description = $meta_description ?? 'La plataforma líder de rifas en Chile
             </h2>
             <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
                 Únete a miles de chilenos que ya confían en nosotros. Tu próximo premio te está esperando.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            </p>            <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <?php if ($isLoggedIn): ?>
-                    <a href="/dashboard" 
+                    <a href="<?= url('dashboard') ?>" 
                        class="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl text-blue-600 bg-white hover:bg-gray-50 transition-all duration-200 transform hover:scale-105">
                         <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -154,7 +152,7 @@ $meta_description = $meta_description ?? 'La plataforma líder de rifas en Chile
                         Ir a Mi Dashboard
                     </a>
                 <?php else: ?>
-                    <a href="/register" 
+                    <a href="<?= url('register') ?>" 
                        class="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl text-blue-600 bg-white hover:bg-gray-50 transition-all duration-200 transform hover:scale-105">
                         <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
@@ -162,7 +160,7 @@ $meta_description = $meta_description ?? 'La plataforma líder de rifas en Chile
                         Crear Cuenta Ahora
                     </a>
                 <?php endif; ?>
-                <a href="/rifas" 
+                <a href="<?= url('rifas') ?>" 
                    class="inline-flex items-center px-8 py-4 border border-white text-lg font-medium rounded-xl text-white hover:bg-white hover:bg-opacity-10 transition-all duration-200">
                     Explorar Rifas
                 </a>

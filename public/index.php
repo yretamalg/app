@@ -23,17 +23,11 @@ if (file_exists(__DIR__ . '/../install/')) {
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
 $dotenv->load();
 
-// Load core classes
-require_once __DIR__ . '/../core/Database.php';
-require_once __DIR__ . '/../core/ChileanHelper.php';
+// Load autoloader for automatic class loading
+require_once __DIR__ . '/../core/Autoloader.php';
+
+// Load configuration files that are not classes
 require_once __DIR__ . '/../config/mailer.php';
-require_once __DIR__ . '/../core/Session.php';
-require_once __DIR__ . '/../core/View.php';
-require_once __DIR__ . '/../core/Controller.php';
-require_once __DIR__ . '/../core/Model.php';
-require_once __DIR__ . '/../core/Router.php';
-require_once __DIR__ . '/../core/Validator.php';
-require_once __DIR__ . '/../core/ActionLogger.php';
 
 // Initialize session
 $session = new Session();
@@ -56,7 +50,8 @@ if ($_ENV['APP_DEBUG'] === 'true') {
 }
 
 // Check if database connection works, if not redirect to installer
-try {    $db = Database::getInstance();
+try {
+    $db = Database::getInstance();
     // Test if the main tables exist
     $stmt = $db->query("SHOW TABLES LIKE 'usuarios'");
     if (!$stmt->fetch()) {

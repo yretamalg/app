@@ -36,16 +36,22 @@ abstract class Model {
         $sql = "SELECT * FROM {$this->table} WHERE deleted_at IS NULL ORDER BY created_at DESC";
         $stmt = $this->db->query($sql);
         return $stmt->fetchAll();
-    }
-    
-    public function where($column, $operator, $value = null) {
+    }    public function where($column, $operator, $value = null) {
         if (func_num_args() === 2) {
             $value = $operator;
             $operator = '=';
         }
         
-        $sql = "SELECT * FROM {$this->table} WHERE {$column} {$operator} ? AND deleted_at IS NULL";
-        $stmt = $this->db->query($sql, [$value]);
+        // Handle IN operator with arrays
+        if (strtoupper($operator) === 'IN' && is_array($value)) {
+            $placeholders = str_repeat('?,', count($value) - 1) . '?';
+            $sql = "SELECT * FROM {$this->table} WHERE {$column} IN ({$placeholders})";
+            $stmt = $this->db->query($sql, $value);
+        } else {
+            $sql = "SELECT * FROM {$this->table} WHERE {$column} {$operator} ?";
+            $stmt = $this->db->query($sql, [$value]);
+        }
+        
         return $stmt->fetchAll();
     }
     

@@ -44,7 +44,7 @@ $page_class = $page_class ?? 'auth-page';
                 <?php unset($_SESSION['flash']); ?>
             <?php endif; ?>
 
-            <form id="registerForm" method="POST" action="/auth/register" class="space-y-6">
+            <form id="registerForm" method="POST" action="<?= url('auth/register') ?>" class="space-y-6">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken ?? ''); ?>">
                 
                 <!-- Nombre y Apellido -->
@@ -131,14 +131,13 @@ $page_class = $page_class ?? 'auth-page';
                 <!-- Términos y condiciones -->
                 <div class="flex items-center">
                     <input id="acepta_terminos" name="acepta_terminos" type="checkbox" required
-                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded bg-white bg-opacity-20">
-                    <label for="acepta_terminos" class="ml-2 block text-sm text-gray-300">
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded bg-white bg-opacity-20">                    <label for="acepta_terminos" class="ml-2 block text-sm text-gray-300">
                         Acepto los 
-                        <a href="/terminos" target="_blank" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
+                        <a href="<?= url('terminos') ?>" target="_blank" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
                             términos y condiciones
                         </a>
                         y 
-                        <a href="/privacidad" target="_blank" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
+                        <a href="<?= url('privacidad') ?>" target="_blank" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
                             política de privacidad
                         </a>
                     </label>
@@ -162,10 +161,9 @@ $page_class = $page_class ?? 'auth-page';
                     </button>
                 </div>
 
-                <div class="text-center">
-                    <p class="text-sm text-gray-300">
+                <div class="text-center">                    <p class="text-sm text-gray-300">
                         ¿Ya tienes cuenta? 
-                        <a href="/login" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
+                        <a href="<?= url('login') ?>" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
                             Inicia sesión aquí
                         </a>
                     </p>
@@ -175,7 +173,7 @@ $page_class = $page_class ?? 'auth-page';
 
         <!-- Back to home -->
         <div class="text-center">
-            <a href="/" class="text-sm text-gray-400 hover:text-gray-300 transition-colors flex items-center justify-center">
+            <a href="<?= url('') ?>" class="text-sm text-gray-400 hover:text-gray-300 transition-colors flex items-center justify-center">
                 <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>

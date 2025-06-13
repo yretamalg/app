@@ -52,30 +52,31 @@ class View {
     public function include($view, $data = []) {
         echo $this->render($view, $data);
     }
-    
-    public function asset($path) {
-        return $_ENV['APP_URL'] . '/assets/' . ltrim($path, '/');
+      public function asset($path) {
+        return asset($path);
     }
     
     public function url($path = '') {
-        return $_ENV['APP_URL'] . '/' . ltrim($path, '/');
+        return url($path);
     }
     
     public function route($name, $params = []) {
         global $router;
         return $router->url($name, $params);
     }
-    
-    public function csrf() {
-        return Session::get('csrf_token');
+      public function csrf() {
+        $session = new Session();
+        return $session->get('csrf_token');
     }
     
     public function old($key, $default = '') {
-        return Session::getFlash('old_' . $key, $default);
+        $session = new Session();
+        return $session->getFlash('old_' . $key, $default);
     }
     
     public function errors($key = null) {
-        $errors = Session::getFlash('errors', []);
+        $session = new Session();
+        $errors = $session->getFlash('errors', []);
         
         if ($key) {
             return isset($errors[$key]) ? $errors[$key] : [];
@@ -90,19 +91,22 @@ class View {
     }
     
     public function success() {
-        return Session::getFlash('success');
+        $session = new Session();
+        return $session->getFlash('success');
     }
-    
-    public function message() {
-        return Session::getFlash('message');
+      public function message() {
+        $session = new Session();
+        return $session->getFlash('message');
     }
     
     public function user() {
-        return Session::get('user');
+        $session = new Session();
+        return $session->get('user');
     }
     
     public function isLoggedIn() {
-        return Session::has('user');
+        $session = new Session();
+        return $session->has('user');
     }
     
     public function hasRole($role) {
