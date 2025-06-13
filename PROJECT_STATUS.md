@@ -46,8 +46,20 @@
 - ✅ Dashboard básico para compradores
 - ✅ Página 404 personalizada
 
-### ⚙️ Configuración
+### ⚙️ Configuración e Instalación
 - ✅ Archivo `.env` con variables de entorno
+- ✅ **NUEVO: Directorio `/install/` con instalador web completo**
+  - ✅ Asistente de instalación paso a paso
+  - ✅ Verificación de requisitos del sistema
+  - ✅ Configuración de base de datos automática
+  - ✅ Creación de usuario administrador
+  - ✅ Generación automática de .env
+  - ✅ Importación de esquema SQL
+  - ✅ Interfaz con Glassmorphism
+  - ✅ Advertencias de seguridad post-instalación
+  - ✅ Detección de aplicación ya instalada
+- ✅ **Advertencias de seguridad** sobre directorio /install/
+- ✅ Redirección automática a instalador si no está configurado
 - ✅ Configuración de base de datos
 - ✅ Configuración de email
 - ✅ Archivo `.htaccess` para URLs limpias
@@ -59,27 +71,30 @@
 - ✅ Relaciones y índices optimizados
 - ✅ Soft deletes y timestamps
 
-## 🚧 EN PROGRESO / PENDIENTE
+## 🚧 PRÓXIMAS TAREAS PRIORITARIAS
 
-### 👨‍💼 Controladores Faltantes
-- ❌ `RifaController` - CRUD completo de rifas
-- ❌ `VentaController` - Gestión de ventas y tickets
-- ❌ `AdminController` - Panel de administración
-- ❌ `SuperAdminController` - Panel de superadmin
-- ❌ `VendedorController` - Panel de vendedores
-- ❌ `PageController` - Páginas estáticas
+### 🎯 Fase 1: Completar Funcionalidad Básica (1-2 semanas)
+
+#### 1. Controladores Principales Faltantes
+- ❌ `RifaController` - CRUD completo de rifas con tres tipos de inventario
+- ❌ `VentaController` - Gestión de ventas y proceso de compra
+- ❌ `AdminController` - Panel de administración general
+- ❌ `SuperAdminController` - Panel de super administrador
+- ❌ `VendedorController` - Panel específico para vendedores
+- ❌ `PageController` - Gestión de páginas estáticas
 - ❌ `NotificationController` - Sistema de notificaciones
 
-### 🎨 Vistas Faltantes
-- ❌ Dashboard de SuperAdmin (`/superadmin`)
-- ❌ Dashboard de Admin (`/admin`)
-- ❌ Dashboard de Vendedor (`/vendedor`)
-- ❌ Catálogo público de rifas (`/rifas`)
-- ❌ Vista detalle de rifa (`/rifas/{slug}`)
-- ❌ Perfil de vendedor (`/vendedor/{slug}`)
-- ❌ Proceso de compra de tickets
-- ❌ Panel de configuración SEO
-- ❌ Editor WYSIWYG para páginas
+#### 2. Dashboards Específicos por Usuario
+- ❌ Dashboard de SuperAdmin (`/superadmin`) - Control total del sistema
+- ❌ Dashboard de Admin (`/admin`) - Gestión de rifas y vendedores
+- ❌ Dashboard de Vendedor (`/vendedor`) - Panel de ventas y números
+- ✅ Dashboard de Comprador (`/dashboard`) - Vista básica completada
+
+#### 3. Frontend Público Esencial
+- ❌ Catálogo público de rifas (`/rifas`) - Lista de rifas activas
+- ❌ Vista detalle de rifa (`/rifas/{slug}`) - Información completa y compra
+- ❌ Perfil de vendedor (`/vendedor/{slug}`) - Información del vendedor
+- ❌ Proceso de compra de tickets - Flujo completo de compra
 
 ### 🔧 Funcionalidades Avanzadas
 - ❌ Sistema de notificaciones en tiempo real

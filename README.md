@@ -47,7 +47,77 @@ RifApp Plus es una aplicación web moderna y escalable para la gestión de rifas
 - **Extensiones PHP requeridas**:
   - PDO MySQL
   - OpenSSL
-  - Fileinfo
+  - Mbstring
+  - JSON
+  - cURL
+- **Permisos de escritura**: directorios `/storage/` y raíz del proyecto
+
+## 🚀 Instalación Rápida
+
+### 1. Descarga y Preparación
+```bash
+# Clonar el repositorio
+git clone https://github.com/tu-usuario/rifapp-plus.git
+cd rifapp-plus
+
+# Instalar dependencias
+composer install
+```
+
+### 2. Instalación Asistida
+1. Accede a `http://tu-servidor/app/install/`
+2. Sigue el asistente de instalación paso a paso:
+   - Verificación de requisitos del sistema
+   - Configuración de base de datos
+   - Creación de usuario administrador
+   - Configuración general de la aplicación
+   - Instalación final
+
+### 3. ⚠️ IMPORTANTE - Seguridad
+**Después de completar la instalación, DEBES eliminar el directorio `/install/` por seguridad:**
+
+```bash
+# En Windows
+rmdir /s "ruta\del\proyecto\install"
+
+# En Linux/Mac
+rm -rf /ruta/del/proyecto/install/
+```
+
+### 4. Verificación
+- Accede a `http://tu-servidor/app/public/`
+- Inicia sesión con las credenciales del administrador creadas durante la instalación
+- ¡Listo para usar!
+
+## 📁 Estructura del Proyecto
+
+```
+rifapp-plus/
+├── app/                    # Aplicación principal
+│   ├── Controllers/        # Controladores MVC
+│   ├── Models/            # Modelos de datos
+│   └── Views/             # Vistas y templates
+├── config/                # Archivos de configuración
+├── core/                  # Clases base del framework
+├── install/               # ⚠️ Instalador (ELIMINAR después de instalar)
+│   ├── views/             # Vistas del instalador
+│   ├── index.php          # Controlador del instalador
+│   └── README.md          # Documentación del instalador
+├── public/                # Punto de entrada web
+│   ├── assets/            # CSS, JS, imágenes
+│   └── index.php          # Archivo principal
+├── routes/                # Definición de rutas
+├── scripts/               # Scripts SQL y utilidades
+├── storage/               # Archivos de la aplicación
+├── vendor/                # Dependencias de Composer
+├── .env                   # Variables de entorno (generado en instalación)
+├── .env.example           # Plantilla de variables de entorno
+└── composer.json          # Dependencias PHP
+```
+
+### ⚠️ Importante - Directorio de Instalación
+
+El directorio `/install/` contiene el asistente de instalación web. **DEBE ser eliminado después de completar la instalación** por razones de seguridad.
   - cURL (para composer)
 - **Servidor Web**: Apache con mod_rewrite o Nginx
 - **Composer**: Para gestión de dependencias

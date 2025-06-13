@@ -1,7 +1,10 @@
 RewriteEngine On
 
+# Handle subdirectory installation
+RewriteBase /app/public/
+
 # Remove index.php from URL
-RewriteCond %{THE_REQUEST} /public/index\.php/?\?
+RewriteCond %{THE_REQUEST} /app/public/index\.php/?\?
 RewriteRule ^index\.php/ /%1 [R=301,L]
 
 # Route all requests to index.php

@@ -38,10 +38,23 @@
     <!-- Navigation -->
     <?php if ($isLoggedIn): ?>
         <?php $this->include('layouts.navigation'); ?>
-    <?php endif; ?>
-
-    <!-- Main Content -->
+    <?php endif; ?>    <!-- Main Content -->
     <main class="<?= $isLoggedIn ? 'ml-64 pt-16' : '' ?> min-h-screen p-6">
+        <!-- Security Warning -->
+        <?php if ($this->flash('security_warning')): ?>
+            <div class="mb-6 p-4 bg-red-600 bg-opacity-20 border border-red-400 rounded-lg backdrop-blur-sm">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-red-300 font-bold">¡ADVERTENCIA DE SEGURIDAD!</h3>
+                        <p class="text-red-100 text-sm mt-1"><?= $this->flash('security_warning') ?></p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+        
         <!-- Flash Messages -->
         <?php if ($this->success()): ?>
             <div class="toast-success mb-6 p-4 rounded-lg">
