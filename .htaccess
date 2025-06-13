@@ -1,7 +1,31 @@
+# RifApp Plus - Configuración Principal
+# Este archivo maneja la redirección al directorio public/
+
+# Activar mod_rewrite
 RewriteEngine On
 
-# Redirect to public folder if not already there
-RewriteCond %{REQUEST_URI} !^/app/public/
+# Prevenir navegación de directorios
+Options -Indexes
+
+# Establecer DirectoryIndex para usar index.php en la raíz
+DirectoryIndex index.php
+
+# Bloquear acceso directo a archivos sensibles
+<FilesMatch "\.(env|log|sql|md)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Redirigir todo el tráfico al directorio public/ excepto algunos archivos/directorios específicos
+RewriteCond %{REQUEST_URI} !^/app/(public|install)/
+RewriteCond %{REQUEST_URI} !^/app/(index\.php|\.well-known)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /app/public/$1 [L]
+RewriteRule ^(.*)$ /app/public/$1 [L,R=301]
+
+# Headers de seguridad básicos
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options SAMEORIGIN
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>

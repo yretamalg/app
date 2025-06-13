@@ -85,34 +85,48 @@ rm -rf /ruta/del/proyecto/install/
 ```
 
 ### 4. Verificación
-- Accede a `http://tu-servidor/app/public/`
+- Accede a `http://tu-servidor/app/` (redirige automáticamente)
+- O directamente a `http://tu-servidor/app/public/`
 - Inicia sesión con las credenciales del administrador creadas durante la instalación
 - ¡Listo para usar!
+
+## 🌐 Acceso a la Aplicación
+
+### URLs de Acceso
+- **Principal**: `http://tu-servidor/app/` - Redirige automáticamente a public/
+- **Directo**: `http://tu-servidor/app/public/` - Acceso directo a la aplicación
+- **Instalador**: `http://tu-servidor/app/install/` - Solo durante la instalación inicial
+
+### Nota Importante
+Después de eliminar `/install/`, el acceso a `http://tu-servidor/app/` funcionará sin mostrar listado de directorios.
 
 ## 📁 Estructura del Proyecto
 
 ```
 rifapp-plus/
-├── app/                    # Aplicación principal
-│   ├── Controllers/        # Controladores MVC
-│   ├── Models/            # Modelos de datos
-│   └── Views/             # Vistas y templates
-├── config/                # Archivos de configuración
-├── core/                  # Clases base del framework
-├── install/               # ⚠️ Instalador (ELIMINAR después de instalar)
-│   ├── views/             # Vistas del instalador
-│   ├── index.php          # Controlador del instalador
-│   └── README.md          # Documentación del instalador
-├── public/                # Punto de entrada web
-│   ├── assets/            # CSS, JS, imágenes
-│   └── index.php          # Archivo principal
-├── routes/                # Definición de rutas
-├── scripts/               # Scripts SQL y utilidades
-├── storage/               # Archivos de la aplicación
-├── vendor/                # Dependencias de Composer
-├── .env                   # Variables de entorno (generado en instalación)
-├── .env.example           # Plantilla de variables de entorno
-└── composer.json          # Dependencias PHP
+├── index.php              # ✅ Punto de entrada principal (redirige a public/)
+├── .htaccess              # ✅ Configuración principal de Apache
+├── app/                   # Aplicación principal
+│   ├── Controllers/       # Controladores MVC
+│   ├── Models/           # Modelos de datos
+│   └── Views/            # Vistas y templates
+├── config/               # Archivos de configuración
+├── core/                 # Clases base del framework
+├── install/              # ⚠️ Instalador (ELIMINAR después de instalar)
+│   ├── views/            # Vistas del instalador
+│   ├── index.php         # Controlador del instalador
+│   └── README.md         # Documentación del instalador
+├── public/               # Punto de entrada web
+│   ├── .htaccess         # ✅ Configuración de ruteo
+│   ├── assets/           # CSS, JS, imágenes
+│   └── index.php         # Archivo principal de la aplicación
+├── routes/               # Definición de rutas
+├── scripts/              # Scripts SQL y utilidades
+├── storage/              # Archivos de la aplicación
+├── vendor/               # Dependencias de Composer
+├── .env                  # Variables de entorno (generado en instalación)
+├── .env.example          # Plantilla de variables de entorno
+└── composer.json         # Dependencias PHP
 ```
 
 ### ⚠️ Importante - Directorio de Instalación

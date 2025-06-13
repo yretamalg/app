@@ -1,7 +1,16 @@
+# RifApp Plus - Configuración Pública
+# Configuración para el directorio public/ de la aplicación
+
 RewriteEngine On
 
 # Handle subdirectory installation
 RewriteBase /app/public/
+
+# Prevenir navegación de directorios
+Options -Indexes
+
+# Establecer DirectoryIndex
+DirectoryIndex index.php
 
 # Remove index.php from URL
 RewriteCond %{THE_REQUEST} /app/public/index\.php/?\?
@@ -11,6 +20,12 @@ RewriteRule ^index\.php/ /%1 [R=301,L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Bloquear acceso a archivos sensibles
+<FilesMatch "\.(env|log|sql|md|txt|ini)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
 
 # Security headers
 <IfModule mod_headers.c>

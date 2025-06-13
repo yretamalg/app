@@ -60,9 +60,17 @@
   - ✅ Detección de aplicación ya instalada
 - ✅ **Advertencias de seguridad** sobre directorio /install/
 - ✅ Redirección automática a instalador si no está configurado
+- ✅ **NUEVO: Archivo `index.php` en la raíz** para evitar listado de directorios
+  - ✅ Redirige automáticamente a `public/`
+  - ✅ Maneja advertencias de seguridad si `/install/` existe
+  - ✅ Redirige al instalador si la app no está configurada
+- ✅ **Configuración mejorada de `.htaccess`**
+  - ✅ Prevención de listado de directorios
+  - ✅ Headers de seguridad
+  - ✅ Bloqueo de archivos sensibles
+  - ✅ Redirecciones optimizadas
 - ✅ Configuración de base de datos
 - ✅ Configuración de email
-- ✅ Archivo `.htaccess` para URLs limpias
 - ✅ Tareas de VS Code para desarrollo
 
 ### 📁 Base de Datos
