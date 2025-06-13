@@ -72,12 +72,19 @@
 - ✅ Configuración de base de datos
 - ✅ Configuración de email
 - ✅ Tareas de VS Code para desarrollo
+- ✅ **NUEVO: Páginas de error especializadas**
+  - ✅ `connection_error.php` - Error de conexión a MySQL
+  - ✅ `database_error.php` - Tablas faltantes en DB
+  - ✅ Diagnóstico automático de problemas
+  - ✅ Enlaces a soluciones (phpMyAdmin, reinstalador)
+  - ✅ Interfaz Glassmorphism con comandos útiles
 
 ### 📁 Base de Datos
 - ✅ Esquema SQL completo (`scripts/database_schema.sql`)
 - ✅ Tablas principales: usuarios, rifas, números, ventas, etc.
 - ✅ Relaciones y índices optimizados
 - ✅ Soft deletes y timestamps
+- ✅ **Manejo robusto de errores de conexión y estructura**
 
 ## 🚧 PRÓXIMAS TAREAS PRIORITARIAS
 

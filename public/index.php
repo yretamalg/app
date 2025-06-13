@@ -56,8 +56,7 @@ if ($_ENV['APP_DEBUG'] === 'true') {
 }
 
 // Check if database connection works, if not redirect to installer
-try {
-    $db = Database::getInstance();
+try {    $db = Database::getInstance();
     // Test if the main tables exist
     $stmt = $db->query("SHOW TABLES LIKE 'usuarios'");
     if (!$stmt->fetch()) {
@@ -65,7 +64,8 @@ try {
         if (file_exists(__DIR__ . '/../install/index.php')) {
             header('Location: ../install/');
         } else {
-            die('Error: Las tablas de la base de datos no existen y el instalador no está disponible.');
+            // Show detailed error page
+            include __DIR__ . '/../app/Views/errors/database_error.php';
         }
         exit;
     }
@@ -74,7 +74,8 @@ try {
     if (file_exists(__DIR__ . '/../install/index.php')) {
         header('Location: ../install/');
     } else {
-        die('Error: No se puede conectar a la base de datos y el instalador no está disponible.');
+        // Show detailed error page with connection details
+        include __DIR__ . '/../app/Views/errors/connection_error.php';
     }
     exit;
 }

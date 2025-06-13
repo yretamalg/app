@@ -74,6 +74,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# INSTALL files Folder
+# INSTALL files Folder - Exclude from repository
 /install/
 /install_temp/
+/install_temp2/
+
+# Error pages should be included (comment this out)
+# /app/Views/errors/
