@@ -6,11 +6,15 @@ require_once __DIR__ . '/../Models/Usuario.php';
 class AuthController extends Controller
 {
     private $usuarioModel;
+    private $mailer;
 
     public function __construct()
     {
         parent::__construct();
         $this->usuarioModel = new Usuario();
+        // Asegúrate de tener un Mailer o PHPMailerWrapper con método send
+        require_once __DIR__ . '/../Helpers/Mailer.php';
+        $this->mailer = new Mailer();
     }
 
     /**
@@ -361,7 +365,7 @@ class AuthController extends Controller
             <p>Saludos,<br>Equipo Rifas Chile</p>
         ";
 
-        return $this->mailer->send($usuario['email'], $subject, $body);
+        return $this->mailer->sendMail($usuario['email'], $subject, $body);
     }
 
     /**

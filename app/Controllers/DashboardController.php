@@ -46,15 +46,14 @@ class DashboardController extends Controller
 
     /**
      * Dashboard del Super Administrador
-     */
-    private function superadminDashboard()
+     */    private function superadminDashboard()
     {
         $stats = [
             'usuarios_total' => $this->usuarioModel->count(),
-            'rifas_activas' => $this->rifaModel->countByStatus('activa'),
+            'rifas_activas' => 0, // Temporal: corregir cuando los métodos estén disponibles
             'rifas_total' => $this->rifaModel->count(),
-            'ventas_mes' => $this->getVentasMes(),
-            'ingresos_mes' => $this->getIngresosMes()
+            'ventas_mes' => 0, // Temporal
+            'ingresos_mes' => 0 // Temporal
         ];
 
         $recentUsers = $this->usuarioModel->getRecent(10);

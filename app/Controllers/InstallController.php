@@ -205,7 +205,8 @@ class InstallController extends Controller {
         }
         
         // Store super admin config in session
-        Session::set('install_admin_config', $data);
+        $session = new Session();
+        $session->set('install_admin_config', $data);
         
         $this->json([
             'success' => true,

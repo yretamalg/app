@@ -15,9 +15,24 @@
     <meta property="og:description" content="<?= $description ?? 'Sistema de gestión de rifas para Chile' ?>">
     <meta property="og:type" content="website">
     <meta property="og:url" content="<?= url(currentUrl()) ?>">
-    
-    <!-- Tailwind CSS -->
+      <!-- Tailwind CSS -->
+    <!-- DEV: Using CDN for development. Replace with compiled CSS for production -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Suppress Tailwind CDN warnings in development
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
     
     <!-- Fonts -->

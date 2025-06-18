@@ -6,13 +6,11 @@ class Usuario extends Model {
         'nombre', 'apellidos', 'email', 'password', 'rut', 'telefono', 
         'tipo', 'organizacion', 'is_particular', 'estado', 'datos_completos'
     ];
-    protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
-
-    public function authenticate($email, $password) {
+    protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];    public function authenticate($email, $password) {
         $user = $this->whereFirst('email', $email);
         
-        if ($user && password_verify($password, $user['password'])) {
-            if ($user['estado'] !== 'activo') {
+        if ($user && password_verify($password, $user['password_hash'])) {
+            if ($user['activo'] != 1) {
                 throw new Exception('Tu cuenta está inactiva. Contacta al administrador.');
             }
             

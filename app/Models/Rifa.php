@@ -167,7 +167,7 @@ class Rifa extends Model {
     public function getByAdmin($adminId) {
         return $this->where('admin_id', $adminId);
     }    public function getPublic() {
-        $sql = "SELECT * FROM {$this->table} WHERE publico = 1 AND activa = 1 AND estado = 'activa'";
+        $sql = "SELECT * FROM {$this->table} WHERE estado IN ('publicada', 'en_curso') AND deleted_at IS NULL";
         $stmt = $this->db->query($sql, []);
         return $stmt->fetchAll();
     }
@@ -316,24 +316,24 @@ class Rifa extends Model {
                         COUNT(DISTINCT nr.id) as numeros_vendidos,
                         COUNT(DISTINCT v.id) as total_ventas,
                         COALESCE(SUM(v.total), 0) as total_recaudado,
-                        COUNT(DISTINCT rv.vendedor_id) as vendedores_asignados
-                    FROM rifas r
+                        COUNT(DISTINCT rv.vendedor_id) as vendedores_asignados                    FROM rifas r
                     LEFT JOIN numeros_rifa nr ON r.id = nr.rifa_id AND nr.estado = 'vendido'
                     LEFT JOIN ventas v ON r.id = v.rifa_id
                     LEFT JOIN rifa_vendedores rv ON r.id = rv.rifa_id AND rv.estado = 'activo'
                     WHERE r.id = ?
                     GROUP BY r.id";
-
+            
             $stmt = $this->db->query($sql, [$rifaId]);
-            return $stmt->fetch();        } else {
+            return $stmt->fetch();
+        } else {
             // General rifa stats
             $sql = "SELECT 
                         COUNT(*) as total_rifas,
-                        SUM(CASE WHEN activa = 1 AND estado = 'activa' THEN 1 ELSE 0 END) as rifas_activas,
+                        SUM(CASE WHEN estado IN ('publicada', 'en_curso') THEN 1 ELSE 0 END) as rifas_activas,
                         SUM(CASE WHEN estado = 'finalizada' THEN 1 ELSE 0 END) as rifas_finalizadas,
                         COALESCE(SUM(cantidad_numeros), 0) as total_numeros,
-                        COALESCE(AVG(precio), 0) as precio_promedio
-                    FROM rifas";
+                        COALESCE(AVG(valor_numero), 0) as precio_promedio
+                    FROM rifas WHERE deleted_at IS NULL";
 
             $stmt = $this->db->query($sql);
             return $stmt->fetch();
@@ -398,11 +398,10 @@ class Rifa extends Model {
         $sql = "SELECT * FROM {$this->table} WHERE admin_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT ?";
         $stmt = $this->db->query($sql, [$vendedorId, $limit]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getActivas($limit = 10)
+    }    public function getActivas($limit = 10)
     {
-        $sql = "SELECT * FROM {$this->table} WHERE estado = 'activa' AND deleted_at IS NULL ORDER BY created_at DESC LIMIT ?";
-        $stmt = $this->db->query($sql, [$limit]);        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM {$this->table} WHERE estado IN ('publicada', 'en_curso') AND deleted_at IS NULL ORDER BY created_at DESC LIMIT ?";
+        $stmt = $this->db->query($sql, [$limit]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

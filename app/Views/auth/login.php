@@ -44,7 +44,7 @@ $page_class = $page_class ?? 'auth-page';
                 <?php unset($_SESSION['flash']); ?>
             <?php endif; ?>
 
-            <form id="loginForm" method="POST" action="/auth/login" class="space-y-6">
+            <form id="loginForm" method="POST" action="<?= url('auth/login') ?>" class="space-y-6">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken ?? ''); ?>">
                 
                 <div>
@@ -83,10 +83,8 @@ $page_class = $page_class ?? 'auth-page';
                         <label for="remember" class="ml-2 block text-sm text-gray-300">
                             Recordarme
                         </label>
-                    </div>
-
-                    <div class="text-sm">
-                        <a href="/forgot-password" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
+                    </div>                    <div class="text-sm">
+                        <a href="<?= url('forgot-password') ?>" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
                             ¿Olvidaste tu contraseña?
                         </a>
                     </div>
@@ -108,22 +106,18 @@ $page_class = $page_class ?? 'auth-page';
                             </svg>
                         </span>
                     </button>
-                </div>
-
-                <div class="text-center">
+                </div>                <div class="text-center">
                     <p class="text-sm text-gray-300">
                         ¿No tienes cuenta? 
-                        <a href="/register" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
+                        <a href="<?= url('register') ?>" class="font-medium text-blue-300 hover:text-blue-200 transition-colors">
                             Regístrate aquí
                         </a>
                     </p>
                 </div>
             </form>
-        </div>
-
-        <!-- Back to home -->
+        </div>        <!-- Back to home -->
         <div class="text-center">
-            <a href="/" class="text-sm text-gray-400 hover:text-gray-300 transition-colors flex items-center justify-center">
+            <a href="<?= url('') ?>" class="text-sm text-gray-400 hover:text-gray-300 transition-colors flex items-center justify-center">
                 <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
