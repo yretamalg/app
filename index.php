@@ -97,23 +97,43 @@ if (file_exists(__DIR__ . '/install/')) {
 
 // Todo está correcto, procesar la ruta y cargar la aplicación
 $requestUri = $_SERVER['REQUEST_URI'];
-$basePath = '/app';
+
+// Detectar automáticamente el directorio base
+$scriptName = $_SERVER['SCRIPT_NAME'];
+$basePath = dirname($scriptName);
+if ($basePath === '/') {
+    $basePath = '';
+}
 
 // Remover el path base del URI de la request
-if (strpos($requestUri, $basePath) === 0) {
+if (!empty($basePath) && strpos($requestUri, $basePath) === 0) {
     $path = substr($requestUri, strlen($basePath));
     $path = ltrim($path, '/');
     
-    // Simular la estructura como si estuviéramos en public/
-    $_SERVER['SCRIPT_NAME'] = '/app/public/index.php';
-    $_SERVER['REQUEST_URI'] = '/app/public/' . $path;
+    // Si no hay path específico, redirigir a public/
+    if (empty($path) || $path === '/') {
+        header('Location: ' . rtrim($basePath, '/') . '/public/');
+        exit;
+    }
+    
+    // Si ya estamos en public/, cargar directamente
+    if (strpos($path, 'public/') === 0) {
+        chdir(__DIR__ . '/public');
+        require_once __DIR__ . '/public/index.php';
+        exit;
+    }
+    
+    // Para otras rutas, simular la estructura como si estuviéramos en public/
+    $_SERVER['SCRIPT_NAME'] = rtrim($basePath, '/') . '/public/index.php';
+    $_SERVER['REQUEST_URI'] = rtrim($basePath, '/') . '/public/' . $path;
     
     // Cargar la aplicación desde public/
     chdir(__DIR__ . '/public');
     require_once __DIR__ . '/public/index.php';
 } else {
     // Fallback: redirigir a public/
-    header('Location: public/');
+    $redirectPath = !empty($basePath) ? rtrim($basePath, '/') . '/public/' : 'public/';
+    header('Location: ' . $redirectPath);
 }
 exit;
 ?>

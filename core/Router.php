@@ -9,20 +9,21 @@ class Router {
         // Detectar la URL base automáticamente
         $this->baseUrl = $this->detectBaseUrl();
     }
-    
-    private function detectBaseUrl() {
+      private function detectBaseUrl() {
         $requestUri = $_SERVER['REQUEST_URI'];
         $scriptName = $_SERVER['SCRIPT_NAME'];
         
-        // Obtener el directorio base
+        // Obtener el directorio base del script
         $basePath = dirname($scriptName);
-        if ($basePath === '/') {
-            $basePath = '';
+        
+        // Si el script está en public/, remover /public del path base
+        if (str_ends_with($basePath, '/public')) {
+            $basePath = substr($basePath, 0, -7); // Remover '/public'
         }
         
-        // Para nuestra aplicación específica, usar /app como base
-        if (strpos($requestUri, '/app/') === 0) {
-            return '/app';
+        // Normalizar el path
+        if ($basePath === '/' || $basePath === '\\') {
+            $basePath = '';
         }
         
         return $basePath;
@@ -80,14 +81,18 @@ class Router {
         http_response_code(404);
         return $this->handle404();
     }
-    
-    private function getUri() {
+      private function getUri() {
         $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         
         // Remove base path if application is in subdirectory
-        $basePath = dirname($_SERVER['SCRIPT_NAME']);
-        if ($basePath !== '/') {
+        $basePath = $this->baseUrl;
+        if (!empty($basePath) && strpos($uri, $basePath) === 0) {
             $uri = substr($uri, strlen($basePath));
+        }
+        
+        // Remove /public if present (since we're in public/index.php)
+        if (strpos($uri, '/public') === 0) {
+            $uri = substr($uri, 7); // Remove '/public'
         }
         
         return rtrim($uri, '/') ?: '/';
