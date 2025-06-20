@@ -40,19 +40,29 @@ abstract class Model {
         if (func_num_args() === 2) {
             $value = $operator;
             $operator = '=';
+        }        
+        try {
+            // Handle IN operator with arrays
+            if (strtoupper($operator) === 'IN' && is_array($value)) {
+                $placeholders = str_repeat('?,', count($value) - 1) . '?';
+                $sql = "SELECT * FROM {$this->table} WHERE {$column} IN ({$placeholders}) AND deleted_at IS NULL";
+                $stmt = $this->db->query($sql, $value);
+            } else {
+                // CORRECCIÓN: Usar parámetros con nombre correctamente
+                $sql = "SELECT * FROM {$this->table} WHERE {$column} {$operator} :whereValue AND deleted_at IS NULL";
+                // Usar un valor nulo como cadena vacía para evitar errors
+                if ($value === null) {
+                    $value = '';
+                }
+                $stmt = $this->db->query($sql, ['whereValue' => $value]);
+            }
+            
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            // Reenviar la excepción para debugging
+            error_log("Error en where para {$column} {$operator} {$value}: " . $e->getMessage());
+            throw $e;
         }
-        
-        // Handle IN operator with arrays
-        if (strtoupper($operator) === 'IN' && is_array($value)) {
-            $placeholders = str_repeat('?,', count($value) - 1) . '?';
-            $sql = "SELECT * FROM {$this->table} WHERE {$column} IN ({$placeholders})";
-            $stmt = $this->db->query($sql, $value);
-        } else {
-            $sql = "SELECT * FROM {$this->table} WHERE {$column} {$operator} ?";
-            $stmt = $this->db->query($sql, [$value]);
-        }
-        
-        return $stmt->fetchAll();
     }
     
     public function whereFirst($column, $operator, $value = null) {

@@ -40,16 +40,43 @@ class Database {
 
     public function getConnection() {
         return $this->connection;
-    }
-
-    public function query($sql, $params = []) {
+    }    public function query($sql, $params = []) {
         try {
+            // Debug: Registrar la consulta SQL y los parámetros
+            error_log("SQL Query: " . $sql);
+            error_log("Params: " . print_r($params, true));
+            
             $stmt = $this->connection->prepare($sql);
-            $stmt->execute($params);
+            
+            // Si los parámetros son un array asociativo (con claves string), debemos usar bindValue
+            if (is_array($params) && !empty($params) && is_string(key($params))) {
+                foreach ($params as $key => $value) {
+                    // Si la clave no tiene ':' al principio, añádelo
+                    $paramName = (strpos($key, ':') === 0) ? $key : ':' . $key;
+                    error_log("Binding: {$paramName} = " . var_export($value, true));
+                    $stmt->bindValue($paramName, $value);
+                }
+                $stmt->execute();
+            } else {
+                // Para parámetros posicionales, ejecutar directamente
+                error_log("Using positional params: " . print_r($params, true));
+                $stmt->execute($params);
+            }
+            
             return $stmt;
         } catch (PDOException $e) {
-            error_log("Database query error: " . $e->getMessage());
-            throw new Exception("Error en la consulta de base de datos");
+            // Log detallado del error para diagnóstico
+            error_log("Database query error: " . $e->getMessage() . " | CODE: " . $e->getCode());
+            error_log("SQL: " . $sql);
+            error_log("Params: " . print_r($params, true));
+            error_log("Trace: " . $e->getTraceAsString());
+            
+            // En desarrollo, mostrar el error exacto - esto te ayudará a diagnosticar
+            if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'development') {
+                throw new Exception("Error SQL: " . $e->getMessage());
+            } else {
+                throw new Exception("Error en la consulta de base de datos");
+            }
         }
     }
 

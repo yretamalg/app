@@ -14,8 +14,7 @@
     <!-- Open Graph -->    <meta property="og:title" content="<?= $title ?? 'Rifas Chile' ?>">
     <meta property="og:description" content="<?= $description ?? 'Sistema de gestión de rifas para Chile' ?>">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="<?= url(currentUrl()) ?>">
-      <!-- Tailwind CSS -->
+    <meta property="og:url" content="<?= url(currentUrl()) ?>">    <!-- Tailwind CSS -->
     <!-- DEV: Using CDN for development. Replace with compiled CSS for production -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,6 +30,20 @@
                     }
                 }
             }
+        }
+        
+        // Completely suppress CDN warning
+        if (typeof console !== 'undefined' && console.warn) {
+            const originalWarn = console.warn;
+            console.warn = function(...args) {
+                const message = args[0];
+                if (typeof message === 'string' && 
+                    (message.includes('cdn.tailwindcss.com') || 
+                     message.includes('should not be used in production'))) {
+                    return; // Suppress CDN warning completely
+                }
+                originalWarn.apply(console, args);
+            };
         }
     </script>
     <link rel="stylesheet" href="<?= asset('css/app.css') ?>">
@@ -90,8 +103,7 @@
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
     <!-- Modals Container -->
-    <div id="modals-container"></div>    <!-- JavaScript -->
-    <script src="<?= asset('js/ui.js') ?>"></script>
+    <div id="modals-container"></div>    <!-- JavaScript -->    <script src="<?= asset('js/ui.js') ?>"></script>
     <script src="<?= asset('js/logic.js') ?>"></script>
     
     <!-- Additional JavaScript -->

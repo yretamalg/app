@@ -154,21 +154,25 @@ document.addEventListener('DOMContentLoaded', function() {
         btnLoading.classList.remove('hidden');
 
         const formData = new FormData(form);
-        
-        fetch('/auth/login', {
+          fetch('<?= url("auth/login") ?>', {
             method: 'POST',
             body: formData,
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('input[name="csrf_token"]').value
+            },
+            credentials: 'include' // Ensure cookies are sent
         })
         .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = data.redirect || '/dashboard';
+        .then(data => {            if (data.success) {
+                window.location.href = data.redirect || url('dashboard');
             } else {
                 // Show error
-                UI.showNotification(data.message, 'error');
+                if (typeof rifasUI !== 'undefined') {
+                    rifasUI.showNotification(data.message, 'error');
+                } else {
+                    alert(data.message);
+                }
                 
                 // Reset button
                 btn.disabled = false;
@@ -178,7 +182,11 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             console.error('Error:', error);
-            UI.showNotification('Error de conexión. Intenta nuevamente.', 'error');
+            if (typeof rifasUI !== 'undefined') {
+                rifasUI.showNotification('Error de conexión. Intenta nuevamente.', 'error');
+            } else {
+                alert('Error de conexión. Intenta nuevamente.');
+            }
             
             // Reset button
             btn.disabled = false;

@@ -8,13 +8,42 @@ class RifasLogic {
         this.selectedNumbers = new Set();
         this.rifaData = null;
         this.init();
-    }
-
-    init() {
+    }    init() {
+        // Verificar inmediatamente si estamos en una página de auth
+        const path = window.location.pathname;
+        const isAuthPage = path.includes('/register') || 
+                          path.includes('/login') || 
+                          path.includes('/forgot-password') ||
+                          path.includes('/reset-password');
+        
         this.initRifaGrid();
         this.initSaleForm();
-        this.initStatistics();
         this.initValidations();
+        
+        // Solo inicializar estadísticas si NO estamos en una página de auth
+        if (!isAuthPage) {
+            // Pequeño delay para asegurar que el DOM esté completamente cargado
+            setTimeout(() => {
+                if (this.isDashboardPage()) {
+                    this.initStatistics();
+                }
+            }, 100);
+        }
+    }    // Verificar si estamos en una página que requiere estadísticas
+    isDashboardPage() {
+        const path = window.location.pathname;
+        
+        // Verificar si es una página de dashboard por URL
+        const isDashboardUrl = path.includes('/dashboard') ||
+                              path.includes('/admin') ||
+                              path.includes('/vendor');
+        
+        // O si tiene elementos de dashboard
+        const hasDashboardElements = document.querySelector('[data-stat]') !== null ||
+                                   document.querySelector('.dashboard-stats') !== null ||
+                                   document.querySelector('#dashboard') !== null;
+        
+        return isDashboardUrl || hasDashboardElements;
     }
 
     // Gestión de números de rifa
@@ -346,18 +375,26 @@ class RifasLogic {
         setInterval(() => {
             this.loadDashboardStats();
         }, 300000);
-    }
-
-    async loadDashboardStats() {
+    }    async loadDashboardStats() {
         try {
             const response = await fetch('/api/estadisticas/dashboard');
+            
+            // Verificar si la respuesta es exitosa
+            if (!response.ok) {
+                console.warn('Dashboard stats endpoint not available (404)');
+                return;
+            }
+            
             const data = await response.json();
             
             if (data.success) {
                 this.updateStatsDisplay(data.stats);
             }
         } catch (error) {
-            console.error('Error loading dashboard stats:', error);
+            // Solo mostrar error si es un error real, no un 404 esperado
+            if (error.message && !error.message.includes('404')) {
+                console.error('Error loading dashboard stats:', error);
+            }
         }
     }
 

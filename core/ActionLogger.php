@@ -5,26 +5,64 @@ class ActionLogger {
     
     public function __construct() {
         $this->db = Database::getInstance();
-    }
-    
-    public function log($action, $details = []) {
+    }      public function log($userId = null, $module = 'system', $action = 'general', $description = '', $details = []) {
         try {
-            $userId = Session::userId();
-            $userType = Session::userType();
+            // Si no se proporciona userId, intentar obtenerlo de la sesión
+            if ($userId === null) {
+                $session = new Session();
+                $userId = $session->getUserId();
+                $userType = $session->userType();
+            } else {
+                $userType = 'system'; // Valor por defecto
+            }
+            
             $ip = $this->getClientIP();
             $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-            
-            $sql = "INSERT INTO action_logs (user_id, user_type, action, details, ip_address, user_agent, created_at) 
-                    VALUES (?, ?, ?, ?, ?, ?, NOW())";
-            
-            $this->db->query($sql, [
-                $userId,
-                $userType,
-                $action,
-                json_encode($details),
-                $ip,
-                $userAgent
-            ]);
+              // Check if action_logs table exists and its structure
+            try {
+                $describeTable = $this->db->query("DESCRIBE action_logs", []);
+                // Extract column names
+                $columns = [];
+                foreach ($describeTable as $col) {
+                    $columns[] = $col['Field'];
+                }
+                
+                // Log the table structure for debugging
+                error_log('[LOGGER] Action_logs columns: ' . implode(', ', $columns));
+                
+                // Based on the actual table structure, build the query
+                if (in_array('module', $columns)) {
+                    $sql = "INSERT INTO action_logs (user_id, user_type, module, action, description, details, ip_address, user_agent, created_at) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+                    
+                    $this->db->query($sql, [
+                        $userId,
+                        $userType,
+                        $module,
+                        $action,
+                        $description,
+                        json_encode($details),
+                        $ip,
+                        $userAgent
+                    ]);
+                } else {
+                    // Assume a simplified structure without the 'module' column
+                    $sql = "INSERT INTO action_logs (user_id, user_type, action, description, details, ip_address, user_agent, created_at) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
+                    
+                    $this->db->query($sql, [
+                        $userId,
+                        $userType,
+                        $action,
+                        $description,
+                        json_encode($details),
+                        $ip,
+                        $userAgent
+                    ]);
+                }
+            } catch (Exception $e) {
+                error_log('[LOGGER] Error checking action_logs structure: ' . $e->getMessage());
+            }
             
             // También escribir en archivo de log si está habilitado el debug
             if ($_ENV['APP_DEBUG'] === 'true') {

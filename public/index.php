@@ -1,4 +1,19 @@
 <?php
+session_name('RIFAPPSESSID');
+
+// Fix session cookie parameters for localhost environment
+// Making sure it works in the /app subdirectory
+ini_set('session.cookie_domain', '');
+ini_set('session.cookie_path', '/app');
+ini_set('session.cookie_secure', '0');  
+ini_set('session.cookie_httponly', '1');
+ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.use_strict_mode', '1');
+
+// Start the session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Load environment variables
 require_once __DIR__ . '/../vendor/autoload.php';

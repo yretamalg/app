@@ -6,15 +6,12 @@ require_once __DIR__ . '/../Models/Usuario.php';
 class AuthController extends Controller
 {
     private $usuarioModel;
-    private $mailer;
 
     public function __construct()
     {
         parent::__construct();
         $this->usuarioModel = new Usuario();
-        // Asegúrate de tener un Mailer o PHPMailerWrapper con método send
-        require_once __DIR__ . '/../Helpers/Mailer.php';
-        $this->mailer = new Mailer();
+        // El mailer ya está disponible desde la clase padre como $this->mailer
     }
 
     /**
@@ -82,17 +79,16 @@ class AuthController extends Controller
 
             // Respuesta JSON para AJAX
             if ($this->isAjaxRequest()) {
-                header('Content-Type: application/json');
-                echo json_encode([
+                header('Content-Type: application/json');                echo json_encode([
                     'success' => true,
                     'message' => 'Bienvenido de vuelta',
-                    'redirect' => '/dashboard'
+                    'redirect' => url('dashboard')
                 ]);
                 exit;
             }
 
             $this->session->setFlash('success', 'Bienvenido de vuelta');
-            $this->redirect('/dashboard');
+            $this->redirect(url('dashboard'));
 
         } catch (Exception $e) {
             if ($this->isAjaxRequest()) {
@@ -102,20 +98,17 @@ class AuthController extends Controller
                     'message' => $e->getMessage()
                 ]);
                 exit;
-            }
-
-            $this->session->setFlash('error', $e->getMessage());
-            $this->redirect('/login');
+            }            $this->session->setFlash('error', $e->getMessage());
+            $this->redirect(url('login'));
         }
     }
 
     /**
      * Mostrar formulario de registro
-     */
-    public function register()
+     */    public function register()
     {
         if ($this->session->isLoggedIn()) {
-            $this->redirect('/dashboard');
+            $this->redirect(url('dashboard'));
         }
 
         $this->view('auth/register', [
@@ -127,17 +120,17 @@ class AuthController extends Controller
 
     /**
      * Procesar registro
-     */
-    public function processRegister()
+     */    public function processRegister()
     {
         try {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
                 throw new Exception('Método no permitido');
-            }
-
+            }            // Re-enable CSRF validation now that we've fixed the redirect URLs
+            $this->validateCSRF();
+            
             $data = [
                 'nombre' => trim($_POST['nombre'] ?? ''),
-                'apellido' => trim($_POST['apellido'] ?? ''),
+                'apellidos' => trim($_POST['apellido'] ?? ''), // Note: DB field is 'apellidos'
                 'email' => trim($_POST['email'] ?? ''),
                 'telefono' => trim($_POST['telefono'] ?? ''),
                 'rut' => trim($_POST['rut'] ?? ''),
@@ -157,12 +150,10 @@ class AuthController extends Controller
             // Verificar si el RUT ya existe
             if ($this->usuarioModel->existsByRut($data['rut'])) {
                 throw new Exception('El RUT ya está registrado');
-            }
-
-            // Crear usuario
+            }            // Crear usuario
             $userId = $this->usuarioModel->create([
                 'nombre' => $data['nombre'],
-                'apellido' => $data['apellido'],
+                'apellidos' => $data['apellidos'], // Using correct DB field name
                 'email' => $data['email'],
                 'telefono' => $data['telefono'],
                 'rut' => $data['rut'],
@@ -182,17 +173,16 @@ class AuthController extends Controller
 
             // Respuesta exitosa
             if ($this->isAjaxRequest()) {
-                header('Content-Type: application/json');
-                echo json_encode([
+                header('Content-Type: application/json');                echo json_encode([
                     'success' => true,
                     'message' => 'Cuenta creada exitosamente. Ya puedes iniciar sesión.',
-                    'redirect' => '/login'
+                    'redirect' => url('login')
                 ]);
                 exit;
             }
 
             $this->session->setFlash('success', 'Cuenta creada exitosamente. Ya puedes iniciar sesión.');
-            $this->redirect('/login');
+            $this->redirect(url('login'));
 
         } catch (Exception $e) {
             if ($this->isAjaxRequest()) {
@@ -319,17 +309,13 @@ class AuthController extends Controller
     {
         if (empty($data['nombre'])) {
             throw new Exception('El nombre es requerido');
-        }
-
-        if (empty($data['apellido'])) {
+        }        if (empty($data['apellidos'])) {
             throw new Exception('El apellido es requerido');
         }
 
         if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             throw new Exception('Email válido es requerido');
-        }
-
-        if (empty($data['rut']) || !$this->chileanHelper->validateRut($data['rut'])) {
+        }        if (empty($data['rut']) || !ChileanHelper::validateRUT($data['rut'])) {
             throw new Exception('RUT válido es requerido');
         }
 
@@ -344,36 +330,10 @@ class AuthController extends Controller
         if (!$data['acepta_terminos']) {
             throw new Exception('Debe aceptar los términos y condiciones');
         }
-    }
-
-    /**
+    }    /**
      * Enviar email de recuperación de contraseña
      */
     private function sendPasswordResetEmail($usuario, $token)
     {
-        $resetUrl = "http://{$_SERVER['HTTP_HOST']}/reset-password?token={$token}";
-        
-        $subject = 'Recuperación de Contraseña - Rifas Chile';
-        $body = "
-            <h2>Recuperación de Contraseña</h2>
-            <p>Hola {$usuario['nombre']},</p>
-            <p>Has solicitado recuperar tu contraseña. Haz clic en el siguiente enlace para crear una nueva contraseña:</p>
-            <p><a href='{$resetUrl}' style='background: #3B82F6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;'>Recuperar Contraseña</a></p>
-            <p>Este enlace expirará en 1 hora.</p>
-            <p>Si no solicitaste este cambio, puedes ignorar este email.</p>
-            <br>
-            <p>Saludos,<br>Equipo Rifas Chile</p>
-        ";
-
-        return $this->mailer->sendMail($usuario['email'], $subject, $body);
-    }
-
-    /**
-     * Verificar si es una petición AJAX
-     */
-    private function isAjaxRequest()
-    {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-    }
+        return $this->mailer->sendPasswordReset($usuario['email'], $usuario['nombre'], $token);    }
 }

@@ -9,8 +9,8 @@ class Usuario extends Model {
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];    public function authenticate($email, $password) {
         $user = $this->whereFirst('email', $email);
         
-        if ($user && password_verify($password, $user['password_hash'])) {
-            if ($user['activo'] != 1) {
+        if ($user && password_verify($password, $user['password'])) {
+            if ($user['estado'] != 'activo') {
                 throw new Exception('Tu cuenta está inactiva. Contacta al administrador.');
             }
             
@@ -227,12 +227,14 @@ class Usuario extends Model {
         return $stmt->fetchAll();
     }    public function existsByEmail($email)
     {
-        return $this->whereFirst('email', $email) !== null;
+        // Llamada explícita con tres parámetros para evitar confusión en el método where
+        return $this->whereFirst('email', '=', $email) !== null;
     }
 
     public function existsByRut($rut)
     {
-        return $this->whereFirst('rut', $rut) !== null;
+        // Llamada explícita con tres parámetros para evitar confusión en el método where
+        return $this->whereFirst('rut', '=', $rut) !== null;
     }
 
     public function findByEmail($email)

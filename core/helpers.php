@@ -7,7 +7,18 @@
  * Generar URL relativa al directorio base de la aplicación
  */
 function url($path = '') {
-    $baseUrl = '/app';
+    // Detectar si estamos en desarrollo (puerto 8000) o en XAMPP
+    $isDevServer = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '8000';
+    $isXAMPP = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '80';
+    
+    if ($isDevServer) {
+        $baseUrl = '';
+    } elseif ($isXAMPP || strpos($_SERVER['REQUEST_URI'] ?? '', '/app/') !== false) {
+        $baseUrl = '/app';
+    } else {
+        // Default for production
+        $baseUrl = '';
+    }
     
     // Remover barra inicial si existe
     $path = ltrim($path, '/');
@@ -19,7 +30,20 @@ function url($path = '') {
  * Generar URL para assets (CSS, JS, imágenes)
  */
 function asset($path) {
-    return url('public/assets/' . ltrim($path, '/'));
+    // Detectar si estamos en desarrollo (puerto 8000) o en XAMPP
+    $isDevServer = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '8000';
+    $isXAMPP = isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '80';
+    
+    if ($isDevServer) {
+        // En el dev server, los assets están en /assets/ directamente
+        return '/assets/' . ltrim($path, '/');
+    } elseif ($isXAMPP || strpos($_SERVER['REQUEST_URI'] ?? '', '/app/') !== false) {
+        // En XAMPP, usar la estructura completa
+        return '/app/public/assets/' . ltrim($path, '/');
+    } else {
+        // En producción, usar la estructura normal
+        return url('public/assets/' . ltrim($path, '/'));
+    }
 }
 
 /**

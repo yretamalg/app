@@ -22,12 +22,15 @@ abstract class Controller {
         $this->actionLogger = new ActionLogger();
         $this->chileanHelper = new ChileanHelper();
         $this->mailer = new Mailer();
-        
-        // Share common data with all views
+          // Share common data with all views
         $this->view->share('user', $this->session->user());
         $this->view->share('isLoggedIn', $this->session->isLoggedIn());
         $this->view->share('userType', $this->session->userType());
-        $this->view->share('csrfToken', $this->session->get('csrf_token', $this->session->generateCSRFToken()));
+        
+        // Always generate a fresh CSRF token if needed and share it with views
+        $csrfToken = $this->session->generateCSRFToken();
+        $this->view->share('csrfToken', $csrfToken);
+        error_log('[CONTROLLER] Shared CSRF token with view: ' . substr($csrfToken, 0, 8) . '...');
     }
       protected function render($view, $data = [], $layout = 'app') {
         echo $this->view->renderWithLayout($view, $layout, $data);
@@ -66,16 +69,15 @@ abstract class Controller {
     protected function validate($data, $rules) {
         $validator = new Validator();
         return $validator->validate($data, $rules);
-    }
-      protected function requireAuth($allowedTypes = []) {
+    }    protected function requireAuth($allowedTypes = []) {
         if (!$this->session->isLoggedIn()) {
-            $this->redirect('/login');
+            $this->redirect(url('login'));
         }
         
         if ($this->session->isTimeout()) {
             $this->session->logout();
             $this->session->flash('message', 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-            $this->redirect('/login');
+            $this->redirect(url('login'));
         }
         
         if (!empty($allowedTypes) && !in_array($this->session->userType(), $allowedTypes)) {
@@ -90,29 +92,42 @@ abstract class Controller {
     
     protected function requireGuest() {
         if ($this->session->isLoggedIn()) {
-            $userType = $this->session->userType();
-            switch ($userType) {
+            $userType = $this->session->userType();            switch ($userType) {
                 case 'superadmin':
-                    $this->redirect('/superadmin');
+                    $this->redirect(url('superadmin'));
                     break;
                 case 'admin':
-                    $this->redirect('/admin');
+                    $this->redirect(url('admin'));
                     break;
                 case 'vendedor':
-                    $this->redirect('/vendedor');
+                    $this->redirect(url('vendedor'));
                     break;
                 default:
-                    $this->redirect('/');
+                    $this->redirect(url(''));
             }
-        }
-    }
-    
-    protected function validateCSRF() {
-        $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+        }    }    protected function validateCSRF() {
+        // Check for CSRF token in:
+        // 1. POST data
+        // 2. GET data
+        // 3. X-CSRF-TOKEN header (for AJAX requests)
+        $headers = getallheaders();
+        $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? $headers['X-CSRF-TOKEN'] ?? '';
+        $sessionToken = $this->session->get('csrf_token');
+        
+        // Debug token information
+        error_log('[CSRF] Validating - Session: ' . var_export($sessionToken, true) . ' | Received: ' . var_export($token, true));
         
         if (!$this->session->validateCSRFToken($token)) {
-            http_response_code(403);
-            $this->json(['error' => 'Token CSRF inválido'], 403);
+            // Debug output
+            error_log('[CSRF] Invalid token! Session: ' . var_export($sessionToken, true) . ' | Received: ' . var_export($token, true));
+            if ($this->isAjaxRequest()) {
+                header('Content-Type: application/json');
+                http_response_code(403);
+                echo json_encode(['error' => 'Token CSRF inválido. Por favor, recarga la página e intenta nuevamente.']);
+                exit;
+            } else {                $this->session->setFlash('error', 'Token de seguridad inválido. Por favor, intenta nuevamente.');
+                $this->redirect($_SERVER['HTTP_REFERER'] ?? url(''));
+            }
         }
     }
     
@@ -131,5 +146,10 @@ abstract class Controller {
     
     protected function hasInput($key) {
         return isset($_POST[$key]) || isset($_GET[$key]);
+    }
+    
+    protected function isAjaxRequest() {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
 }

@@ -50,15 +50,13 @@ $page_class = $page_class ?? 'auth-page';
                 <!-- Nombre y Apellido -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="nombre" class="sr-only">Nombre</label>
-                        <input id="nombre" name="nombre" type="text" required 
+                        <label for="nombre" class="sr-only">Nombre</label>                        <input id="nombre" name="nombre" type="text" required autocomplete="given-name"
                                class="appearance-none relative block w-full px-3 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 placeholder-gray-300 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent focus:bg-opacity-30 transition-all duration-200" 
                                placeholder="Nombre"
                                value="<?php echo htmlspecialchars($_SESSION['old_input']['nombre'] ?? ''); ?>">
                     </div>
                     <div>
-                        <label for="apellido" class="sr-only">Apellido</label>
-                        <input id="apellido" name="apellido" type="text" required 
+                        <label for="apellido" class="sr-only">Apellido</label>                        <input id="apellido" name="apellido" type="text" required autocomplete="family-name"
                                class="appearance-none relative block w-full px-3 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 placeholder-gray-300 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent focus:bg-opacity-30 transition-all duration-200" 
                                placeholder="Apellido"
                                value="<?php echo htmlspecialchars($_SESSION['old_input']['apellido'] ?? ''); ?>">
@@ -73,8 +71,7 @@ $page_class = $page_class ?? 'auth-page';
                             <svg class="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
                             </svg>
-                        </div>
-                        <input id="email" name="email" type="email" required 
+                        </div>                        <input id="email" name="email" type="email" required autocomplete="email"
                                class="appearance-none relative block w-full pl-10 pr-3 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 placeholder-gray-300 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent focus:bg-opacity-30 transition-all duration-200" 
                                placeholder="Correo electrónico"
                                value="<?php echo htmlspecialchars($_SESSION['old_input']['email'] ?? ''); ?>">
@@ -91,8 +88,7 @@ $page_class = $page_class ?? 'auth-page';
                                value="<?php echo htmlspecialchars($_SESSION['old_input']['rut'] ?? ''); ?>">
                     </div>
                     <div>
-                        <label for="telefono" class="sr-only">Teléfono</label>
-                        <input id="telefono" name="telefono" type="tel" 
+                        <label for="telefono" class="sr-only">Teléfono</label>                        <input id="telefono" name="telefono" type="tel" autocomplete="tel"
                                class="appearance-none relative block w-full px-3 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 placeholder-gray-300 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent focus:bg-opacity-30 transition-all duration-200" 
                                placeholder="Teléfono (opcional)"
                                value="<?php echo htmlspecialchars($_SESSION['old_input']['telefono'] ?? ''); ?>">
@@ -107,8 +103,7 @@ $page_class = $page_class ?? 'auth-page';
                             <svg class="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
-                        </div>
-                        <input id="password" name="password" type="password" required 
+                        </div>                        <input id="password" name="password" type="password" required autocomplete="new-password"
                                class="appearance-none relative block w-full pl-10 pr-3 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 placeholder-gray-300 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent focus:bg-opacity-30 transition-all duration-200" 
                                placeholder="Contraseña (mín. 6 caracteres)">
                     </div>
@@ -121,8 +116,7 @@ $page_class = $page_class ?? 'auth-page';
                             <svg class="h-5 w-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                        </div>
-                        <input id="password_confirm" name="password_confirm" type="password" required 
+                        </div>                        <input id="password_confirm" name="password_confirm" type="password" required autocomplete="new-password"
                                class="appearance-none relative block w-full pl-10 pr-3 py-3 bg-white bg-opacity-20 border border-white border-opacity-30 placeholder-gray-300 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent focus:bg-opacity-30 transition-all duration-200" 
                                placeholder="Confirmar contraseña">
                     </div>
@@ -235,37 +229,55 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show loading state
         btn.disabled = true;
         btnText.classList.add('hidden');
-        btnLoading.classList.remove('hidden');
-
-        const formData = new FormData(form);
-        
-        fetch('/auth/register', {
+        btnLoading.classList.remove('hidden');        const formData = new FormData(form);
+          fetch('<?= url("auth/register") ?>', {
             method: 'POST',
             body: formData,
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('input[name="csrf_token"]').value
+            },
+            credentials: 'include' // Use 'include' to ensure cookies are sent with cross-origin requests
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
+            return response.json();
         })
-        .then(response => response.json())
         .then(data => {
             if (data.success) {
-                UI.showNotification(data.message, 'success');
+                if (typeof UI !== 'undefined') {
+                    UI.showNotification(data.message, 'success');
+                } else {
+                    alert(data.message);
+                }
                 setTimeout(() => {
                     window.location.href = data.redirect || '/login';
                 }, 2000);
             } else {
                 // Show error
-                UI.showNotification(data.message, 'error');
+                if (typeof UI !== 'undefined') {
+                    UI.showNotification(data.message, 'error');
+                } else {
+                    alert(data.message);
+                }
                 
                 // Reset button
                 btn.disabled = false;
                 btnText.classList.remove('hidden');
                 btnLoading.classList.add('hidden');
             }
-        })
-        .catch(error => {
+        })        .catch(error => {
             console.error('Error:', error);
-            UI.showNotification('Error de conexión. Intenta nuevamente.', 'error');
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack
+            });
+            if (typeof UI !== 'undefined') {
+                UI.showNotification('Error de conexión. Intenta nuevamente.', 'error');
+            } else {
+                alert('Error de conexión. Intenta nuevamente.');
+            }
             
             // Reset button
             btn.disabled = false;

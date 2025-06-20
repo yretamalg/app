@@ -5,10 +5,18 @@ class Session {
     public function __construct() {
         $this->start();
     }
-    
-    public function start() {
+      public function start() {
         if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+            // Ensure all session parameters are correct
+            try {
+                session_start();
+                // Log session information for debugging
+                error_log('[SESSION] Started session with ID: ' . session_id());
+            } catch (Exception $e) {
+                error_log('[SESSION] Error starting session: ' . $e->getMessage());
+                // Try to recover from session errors by creating a new session
+                session_regenerate_id(true);
+            }
         }
     }
     
@@ -64,16 +72,37 @@ class Session {
             $this->flash($key, $value);
         }
     }
-    
-    public function generateCSRFToken() {
-        $token = bin2hex(random_bytes(32));
-        $this->set('csrf_token', $token);
+      public function generateCSRFToken() {
+        // Generate a new token if one doesn't exist
+        if (!$this->has('csrf_token')) {
+            $token = bin2hex(random_bytes(32));
+            $this->set('csrf_token', $token);
+            error_log('[CSRF] Generated new token: ' . substr($token, 0, 8) . '...');
+        } else {
+            $token = $this->get('csrf_token');
+            error_log('[CSRF] Using existing token: ' . substr($token, 0, 8) . '...');
+        }
         return $token;
     }
     
     public function validateCSRFToken($token) {
         $sessionToken = $this->get('csrf_token');
-        return $sessionToken && hash_equals($sessionToken, $token);
+        
+        // Enhanced security: generate a new token after validation
+        $result = $sessionToken && !empty($token) && hash_equals($sessionToken, $token);
+        
+        if ($result) {
+            error_log('[CSRF] Token validated successfully');
+            // Only regenerate on successful validations to prevent session fixation
+            // but keep the current token after failed validations
+            $newToken = bin2hex(random_bytes(32));
+            $this->set('csrf_token', $newToken);
+        } else {
+            error_log('[CSRF] Token validation failed - Session: ' . substr($sessionToken ?? 'null', 0, 8) . 
+                      ' | Received: ' . substr($token ?? 'null', 0, 8));
+        }
+        
+        return $result;
     }
     
     public function login($userId, $remember = false) {
