@@ -297,4 +297,45 @@ class Usuario extends Model {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'] ?? 0;
     }
+    
+    /**
+     * Autenticar específicamente para superadmin
+     */
+    public function authenticateSuperAdmin($email, $password) {
+        $user = $this->whereFirst('email', $email);
+        
+        if ($user && password_verify($password, $user['password'])) {
+            if ($user['tipo'] !== 'superadmin') {
+                return false; // No es superadmin
+            }
+            
+            if ($user['estado'] != 'activo') {
+                throw new Exception('Tu cuenta está inactiva.');
+            }
+            
+            // Update last access
+            $this->update($user['id'], ['ultimo_acceso' => date('Y-m-d H:i:s')]);
+            
+            return $user;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Obtener todos los usuarios
+     */
+    public function getAll() {
+        $sql = "SELECT * FROM {$this->table} WHERE deleted_at IS NULL ORDER BY created_at DESC";
+        return $this->db->query($sql);
+    }
+    
+    /**
+     * Contar todos los usuarios
+     */
+    public function countAll() {
+        $sql = "SELECT COUNT(*) as total FROM {$this->table} WHERE deleted_at IS NULL";
+        $result = $this->db->query($sql);
+        return $result[0]['total'];
+    }
 }
