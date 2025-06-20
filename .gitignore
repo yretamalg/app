@@ -81,3 +81,30 @@ yarn-error.log*
 
 # Error pages should be included (comment this out)
 # /app/Views/errors/
+
+# Development and testing files
+test*.php
+debug*.php
+clean*.php
+reset*.php
+verify.php
+*_test.php
+*_debug.php
+
+# Deploy files
+deploy.sh
+deploy.ps1
+*.deploy.zip
+rifapp-deploy.zip
+
+# Documentation files (development)
+DEPLOYMENT_COMPLETE.md
+DEPLOY_READY.md
+DEPLOY_INSTRUCTIONS.md
+PROJECT_STATUS.md
+ADMIN_CREDENTIALS.md
+INSTALLATION_GUIDE.md
+
+# Temporary installer files
+install_simple.php
+install_temp.php
