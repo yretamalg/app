@@ -440,6 +440,51 @@ class RifasUI {
 
         return modal;
     }
+
+    // Sistema de notificaciones moderno con estilo glassmorphism
+    showNotification(message, type = 'info') {
+        const notificationClasses = {
+            'success': 'bg-green-500 bg-opacity-80',
+            'error': 'bg-red-500 bg-opacity-80',
+            'info': 'bg-blue-500 bg-opacity-80',
+            'warning': 'bg-yellow-500 bg-opacity-80'
+        };
+        
+        // Crear elemento de notificación con estilo glassmorphism
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg backdrop-blur-sm text-white 
+            border border-white border-opacity-20 ${notificationClasses[type] || notificationClasses.info} 
+            transform transition-all duration-300 opacity-0 translate-y-[-20px] z-50`;
+        notification.innerHTML = `
+            <div class="flex items-center">
+                <span class="mr-2">
+                    ${type === 'success' ? '<i class="fas fa-check-circle"></i>' : 
+                    type === 'error' ? '<i class="fas fa-exclamation-circle"></i>' :
+                    type === 'warning' ? '<i class="fas fa-exclamation-triangle"></i>' :
+                    '<i class="fas fa-info-circle"></i>'}
+                </span>
+                <p class="text-sm">${message}</p>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animar entrada
+        setTimeout(() => {
+            notification.classList.remove('opacity-0', 'translate-y-[-20px]');
+            notification.classList.add('opacity-100', 'translate-y-0');
+        }, 10);
+        
+        // Animar salida y eliminar
+        setTimeout(() => {
+            notification.classList.remove('opacity-100', 'translate-y-0');
+            notification.classList.add('opacity-0', 'translate-y-[-20px]');
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 5000);
+    }
 }
 
 // Inicializar UI cuando el DOM esté listo
@@ -465,3 +510,8 @@ function closeModal() {
         window.rifasUI.closeModal();
     }
 }
+
+// Crear instancia global
+window.rifasUI = new RifasUI();
+// Mantener compatibilidad con UI para vistas existentes
+window.UI = window.rifasUI;

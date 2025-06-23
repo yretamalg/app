@@ -90,11 +90,9 @@
                     Mi Perfil
                 </a>
             <?php endif; ?>
-        </div>
-
-        <!-- Logout -->
+        </div>        <!-- Logout -->
         <div class="pt-4 border-t border-gray-600">
-            <a href="/logout" class="nav-item text-red-400 hover:text-red-300">
+            <a href="<?= url('logout') ?>" class="nav-item text-red-400 hover:text-red-300">
                 <span class="nav-icon">🚪</span>
                 Cerrar Sesión
             </a>
@@ -159,8 +157,7 @@
                     <a href="/configuracion" class="block px-4 py-2 text-white hover:bg-white hover:bg-opacity-10 rounded">
                         ⚙️ Configuración
                     </a>
-                    <hr class="my-2 border-gray-600">
-                    <a href="/logout" class="block px-4 py-2 text-red-400 hover:bg-red-500 hover:bg-opacity-10 rounded">
+                    <hr class="my-2 border-gray-600">                    <a href="<?= url('logout') ?>" class="block px-4 py-2 text-red-400 hover:bg-red-500 hover:bg-opacity-10 rounded">
                         🚪 Cerrar Sesión
                     </a>
                 </div>

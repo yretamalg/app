@@ -299,14 +299,8 @@ class DashboardController extends Controller
     {
         // Implementar lógica para obtener próximos sorteos donde participa
         return []; // Placeholder
-    }
-
-    /**
+    }    /**
      * Verificar si es una petición AJAX
+     * Eliminado para usar la implementación de la clase base
      */
-    private function isAjaxRequest()
-    {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
-               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-    }
 }

@@ -112,8 +112,8 @@ class AuthController extends Controller
         }
 
         $this->view('auth/register', [
-            'title' => 'Crear Cuenta - Rifas Chile',
-            'meta_description' => 'Crea tu cuenta en Rifas Chile y participa en nuestras rifas',
+            'title' => 'Crear Cuenta de Administrador - Rifas Chile',
+            'meta_description' => 'Crea tu cuenta de Administrador en Rifas Chile y gestiona tus rifas',
             'page_class' => 'auth-page'
         ]);
     }
@@ -150,7 +150,7 @@ class AuthController extends Controller
             // Verificar si el RUT ya existe
             if ($this->usuarioModel->existsByRut($data['rut'])) {
                 throw new Exception('El RUT ya está registrado');
-            }            // Crear usuario
+            }            // Crear usuario como Administrador (según los requisitos, los registros públicos deben ser Admin)
             $userId = $this->usuarioModel->create([
                 'nombre' => $data['nombre'],
                 'apellidos' => $data['apellidos'], // Using correct DB field name
@@ -158,7 +158,7 @@ class AuthController extends Controller
                 'telefono' => $data['telefono'],
                 'rut' => $data['rut'],
                 'password' => password_hash($data['password'], PASSWORD_DEFAULT),
-                'tipo' => 'comprador',
+                'tipo' => 'admin',
                 'estado' => 'activo'
             ]);
 
@@ -172,16 +172,13 @@ class AuthController extends Controller
             );
 
             // Respuesta exitosa
-            if ($this->isAjaxRequest()) {
-                header('Content-Type: application/json');                echo json_encode([
+            if ($this->isAjaxRequest()) {                header('Content-Type: application/json');                echo json_encode([
                     'success' => true,
-                    'message' => 'Cuenta creada exitosamente. Ya puedes iniciar sesión.',
+                    'message' => 'Cuenta de Administrador creada exitosamente. Ya puedes iniciar sesión.',
                     'redirect' => url('login')
                 ]);
                 exit;
-            }
-
-            $this->session->setFlash('success', 'Cuenta creada exitosamente. Ya puedes iniciar sesión.');
+            }            $this->session->setFlash('success', 'Cuenta de Administrador creada exitosamente. Ya puedes iniciar sesión.');
             $this->redirect(url('login'));
 
         } catch (Exception $e) {
@@ -201,8 +198,7 @@ class AuthController extends Controller
 
     /**
      * Cerrar sesión
-     */
-    public function logout()
+     */    public function logout()
     {
         $userId = $this->session->getUserId();
         
@@ -213,11 +209,11 @@ class AuthController extends Controller
                 'logout',
                 'Usuario cerró sesión'
             );
-        }
-
+        }        
         $this->session->logout();
         $this->session->setFlash('success', 'Sesión cerrada exitosamente');
-        $this->redirect('/');
+        // Fix to ensure we redirect to the correct base URL
+        $this->redirect(url(''));
     }
 
     /**

@@ -7,6 +7,9 @@
     
     <title><?= $title ?? 'Rifas Chile' ?></title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="<?= url('assets/img/favicon.png') ?>">
+    
     <!-- SEO Meta Tags -->
     <meta name="description" content="<?= $description ?? 'Sistema de gestión de rifas para Chile' ?>">
     <meta name="keywords" content="<?= $keywords ?? 'rifas, chile, sorteos, premios' ?>">

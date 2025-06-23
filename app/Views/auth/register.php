@@ -1,7 +1,7 @@
 <?php
 // Set page variables
-$title = $title ?? 'Crear Cuenta - Rifas Chile';
-$meta_description = $meta_description ?? 'Crea tu cuenta en Rifas Chile y participa en nuestras rifas';
+$title = $title ?? 'Crear Cuenta de Administrador - Rifas Chile';
+$meta_description = $meta_description ?? 'Crea tu cuenta de Administrador en Rifas Chile y gestiona rifas';
 $page_class = $page_class ?? 'auth-page';
 ?>
 
@@ -23,12 +23,11 @@ $page_class = $page_class ?? 'auth-page';
                 <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                 </svg>
-            </div>
-            <h2 class="mt-6 text-3xl font-extrabold text-white">
-                Únete a Rifas Chile
+            </div>            <h2 class="mt-6 text-3xl font-extrabold text-white">
+                Únete como Administrador
             </h2>
             <p class="mt-2 text-sm text-gray-300">
-                Crea tu cuenta y participa en nuestras rifas
+                Crea tu cuenta de Administrador y gestiona tus rifas
             </p>
         </div>
 
@@ -145,7 +144,7 @@ $page_class = $page_class ?? 'auth-page';
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                             </svg>
                         </span>
-                        <span id="registerBtnText">Crear Cuenta</span>
+                        <span id="registerBtnText">Crear Cuenta de Administrador</span>
                         <span id="registerBtnLoading" class="hidden">
                             <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

@@ -41,6 +41,169 @@ class Rifa extends Model {
         ]);
 
         return $rifa;
+    }    /**
+     * Cuenta las rifas creadas por un administrador
+     * 
+     * @param int $adminId ID del administrador
+     * @return int Número de rifas
+     */
+    public function countRifasByAdmin($adminId) 
+    {
+        $query = "SELECT COUNT(*) as total FROM {$this->table} WHERE admin_id = :adminId";
+        $params = [':adminId' => $adminId];
+        $result = $this->db->query($query, $params);
+        return $result[0]['total'] ?? 0;
+    }
+    
+    /**
+     * Obtiene las últimas rifas de un administrador
+     * 
+     * @param int $adminId ID del administrador
+     * @param int $limit Límite de rifas a obtener
+     * @return array Lista de rifas
+     */
+    public function getLatestRifasByAdmin($adminId, $limit = 5) 
+    {
+        $query = "SELECT * FROM {$this->table} WHERE admin_id = :adminId ORDER BY created_at DESC LIMIT :limit";
+        $params = [':adminId' => $adminId, ':limit' => $limit];
+        return $this->db->query($query, $params);
+    }
+    
+    /**
+     * Obtiene todas las rifas de un administrador
+     * 
+     * @param int $adminId ID del administrador
+     * @return array Lista de rifas
+     */
+    public function getAllByAdmin($adminId) 
+    {
+        $query = "SELECT * FROM {$this->table} WHERE admin_id = :adminId ORDER BY created_at DESC";
+        $params = [':adminId' => $adminId];
+        return $this->db->query($query, $params);
+    }
+    
+    /**
+     * Verifica si un slug ya existe
+     * 
+     * @param string $slug Slug a verificar
+     * @param int $excludeId ID a excluir de la búsqueda (para edición)
+     * @return bool True si existe, false si no
+     */
+    public function slugExists($slug, $excludeId = null) 
+    {
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE slug = :slug";
+        $params = [':slug' => $slug];
+        
+        if ($excludeId) {
+            $query .= " AND id != :excludeId";
+            $params[':excludeId'] = $excludeId;
+        }
+        
+        $result = $this->db->query($query, $params);
+        return $result[0]['count'] > 0;
+    }
+    
+    /**
+     * Actualiza el estado de una rifa
+     * 
+     * @param int $id ID de la rifa
+     * @param string $estado Nuevo estado
+     * @return bool Resultado de la operación
+     */
+    public function updateStatus($id, $estado) 
+    {
+        return $this->update($id, ['estado' => $estado]);
+    }
+    
+    /**
+     * Verifica si una rifa tiene números vendidos
+     * 
+     * @param int $id ID de la rifa
+     * @return bool True si tiene números vendidos
+     */
+    public function hasAnySold($id) 
+    {
+        $query = "SELECT COUNT(*) as count FROM numeros_rifa 
+                 WHERE id_rifa = :id AND estado = 'vendido'";
+        $params = [':id' => $id];
+        $result = $this->db->query($query, $params);
+        return $result[0]['count'] > 0;
+    }
+    
+    /**
+     * Obtiene estadísticas de ventas por día para los últimos 30 días
+     * 
+     * @param int $adminId ID del administrador
+     * @return array Datos de ventas por día
+     */
+    public function getSalesByDayForLast30Days($adminId) 
+    {
+        $query = "SELECT 
+                    DATE(n.fecha_venta) as fecha,
+                    COUNT(*) as numeros_vendidos,
+                    SUM(r.valor_numero) as total_ventas
+                  FROM numeros_rifa n
+                  JOIN {$this->table} r ON n.id_rifa = r.id
+                  WHERE r.admin_id = :adminId 
+                    AND n.estado = 'vendido'
+                    AND n.fecha_venta >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                  GROUP BY DATE(n.fecha_venta)
+                  ORDER BY fecha";
+        $params = [':adminId' => $adminId];
+        return $this->db->query($query, $params);
+    }
+    
+    /**
+     * Obtiene estadísticas generales de una rifa
+     * 
+     * @param int $id ID de la rifa
+     * @return array Estadísticas de la rifa
+     */
+    public function getStatistics($id) 
+    {
+        // Obtener datos básicos
+        $rifa = $this->find($id);
+        
+        if (!$rifa) {
+            return false;
+        }
+        
+        // Obtener conteos
+        $query = "SELECT 
+                    COUNT(*) as total_numeros,
+                    SUM(CASE WHEN estado = 'vendido' THEN 1 ELSE 0 END) as numeros_vendidos,
+                    SUM(CASE WHEN estado = 'reservado' THEN 1 ELSE 0 END) as numeros_reservados,
+                    SUM(CASE WHEN estado = 'disponible' THEN 1 ELSE 0 END) as numeros_disponibles
+                  FROM numeros_rifa
+                  WHERE id_rifa = :id";
+        $params = [':id' => $id];
+        $conteos = $this->db->query($query, $params);
+        
+        // Calcular ingreso total
+        $ingresoTotal = $conteos[0]['numeros_vendidos'] * $rifa['valor_numero'];
+        
+        // Obtener top vendedores
+        $queryVendedores = "SELECT 
+                              u.id, u.nombre, COUNT(*) as numeros_vendidos
+                            FROM numeros_rifa n
+                            JOIN usuarios u ON n.id_vendedor = u.id
+                            WHERE n.id_rifa = :id AND n.estado = 'vendido'
+                            GROUP BY u.id
+                            ORDER BY numeros_vendidos DESC
+                            LIMIT 5";
+        $topVendedores = $this->db->query($queryVendedores, $params);
+        
+        return [
+            'total_numeros' => $conteos[0]['total_numeros'],
+            'numeros_vendidos' => $conteos[0]['numeros_vendidos'],
+            'numeros_reservados' => $conteos[0]['numeros_reservados'],
+            'numeros_disponibles' => $conteos[0]['numeros_disponibles'],
+            'porcentaje_vendido' => $conteos[0]['total_numeros'] > 0 
+                ? round(($conteos[0]['numeros_vendidos'] / $conteos[0]['total_numeros']) * 100, 2)
+                : 0,
+            'ingreso_total' => $ingresoTotal,
+            'top_vendedores' => $topVendedores
+        ];
     }
 
     public function updateRifa($id, $data) {

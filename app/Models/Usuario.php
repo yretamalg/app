@@ -7,7 +7,7 @@ class Usuario extends Model {
         'tipo', 'organizacion', 'is_particular', 'estado', 'datos_completos'
     ];
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];    public function authenticate($email, $password) {
-        $user = $this->whereFirst('email', $email);
+        $user = $this->whereFirst('email', '=', $email);
         
         if ($user && password_verify($password, $user['password'])) {
             if ($user['estado'] != 'activo') {
@@ -21,16 +21,14 @@ class Usuario extends Model {
         }
         
         return false;
-    }
-
-    public function createUser($data) {
-        // Validate RUT uniqueness
-        if (isset($data['rut']) && $this->whereFirst('rut', $data['rut'])) {
+    }    public function createUser($data) {
+        // Validate RUT uniqueness        
+        if (isset($data['rut']) && $this->whereFirst('rut', '=', $data['rut'])) {
             throw new Exception('El RUT ya está registrado en el sistema');
         }
 
         // Validate email uniqueness
-        if ($this->whereFirst('email', $data['email'])) {
+        if ($this->whereFirst('email', '=', $data['email'])) {
             throw new Exception('El email ya está registrado en el sistema');
         }
 
@@ -89,10 +87,8 @@ class Usuario extends Model {
         }
         
         return true;
-    }
-
-    public function generatePasswordResetToken($email) {
-        $user = $this->whereFirst('email', $email);
+    }    public function generatePasswordResetToken($email) {
+        $user = $this->whereFirst('email', '=', $email);
         
         if (!$user) {
             throw new Exception('No se encontró un usuario con ese email');
@@ -115,10 +111,8 @@ class Usuario extends Model {
 
         if (!$resetData) {
             throw new Exception('Token de recuperación inválido o expirado');
-        }
-
-        // Update user password
-        $user = $this->whereFirst('email', $resetData['email']);
+        }        // Update user password
+        $user = $this->whereFirst('email', '=', $resetData['email']);
         if (!$user) {
             throw new Exception('Usuario no encontrado');
         }
@@ -235,11 +229,9 @@ class Usuario extends Model {
     {
         // Llamada explícita con tres parámetros para evitar confusión en el método where
         return $this->whereFirst('rut', '=', $rut) !== null;
-    }
-
-    public function findByEmail($email)
+    }    public function findByEmail($email)
     {
-        return $this->whereFirst('email', $email);
+        return $this->whereFirst('email', '=', $email);
     }
 
     public function createPasswordResetToken($userId, $token, $expires)
@@ -297,12 +289,11 @@ class Usuario extends Model {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total'] ?? 0;
     }
-    
-    /**
+      /**
      * Autenticar específicamente para superadmin
      */
     public function authenticateSuperAdmin($email, $password) {
-        $user = $this->whereFirst('email', $email);
+        $user = $this->whereFirst('email', '=', $email);
         
         if ($user && password_verify($password, $user['password'])) {
             if ($user['tipo'] !== 'superadmin') {

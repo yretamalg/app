@@ -4,6 +4,18 @@
  */
 
 /**
+ * Redirige a una URL y termina la ejecución del script
+ * 
+ * @param string $url La URL a la que redirigir
+ * @param int $statusCode El código de estado HTTP (301, 302, etc.)
+ * @return void
+ */
+function redirect($url, $statusCode = 302) {
+    header('Location: ' . $url, true, $statusCode);
+    exit();
+}
+
+/**
  * Generar URL relativa al directorio base de la aplicación
  */
 function url($path = '') {

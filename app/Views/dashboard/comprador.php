@@ -9,10 +9,13 @@ $title = $title ?? 'Mi Dashboard - Rifas Chile';
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center py-6">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                    <div class="flex-shrink-0">                        <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                             <span class="text-white font-semibold">
-                                <?php echo strtoupper(substr($user['nombre'], 0, 1) . substr($user['apellido'], 0, 1)); ?>
+                                <?php 
+                                    $primeraLetraNombre = isset($user['nombre']) ? strtoupper(substr($user['nombre'], 0, 1)) : 'U';
+                                    $primeraLetraApellido = isset($user['apellidos']) ? strtoupper(substr($user['apellidos'], 0, 1)) : '';
+                                    echo $primeraLetraNombre . $primeraLetraApellido;
+                                ?>
                             </span>
                         </div>
                     </div>
@@ -25,13 +28,11 @@ $title = $title ?? 'Mi Dashboard - Rifas Chile';
                         </p>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/perfil" class="text-gray-500 hover:text-gray-700">
+                <div class="flex items-center space-x-4">                    <a href="<?= url('perfil') ?>" class="text-gray-500 hover:text-gray-700">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
-                    </a>
-                    <a href="/logout" class="text-gray-500 hover:text-gray-700">
+                    </a><a href="<?= url('logout') ?>" class="text-gray-500 hover:text-gray-700">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
