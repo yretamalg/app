@@ -97,3 +97,19 @@ function csrf_token() {
 function csrf_field() {
     return '<input type="hidden" name="_token" value="' . csrf_token() . '">';
 }
+
+/**
+ * Elimina acentos y caracteres especiales de un string
+ * Útil para búsquedas y generación de slugs
+ * 
+ * @param string $string String a procesar
+ * @return string String sin acentos ni caracteres especiales
+ */
+function removeAccents($string) {
+    $unwanted_array = array(
+        'á'=>'a', 'é'=>'e', 'í'=>'i', 'ó'=>'o', 'ú'=>'u', 'Á'=>'A', 'É'=>'E', 'Í'=>'I', 'Ó'=>'O', 'Ú'=>'U',
+        'ñ'=>'n', 'Ñ'=>'N', 'ü'=>'u', 'Ü'=>'U',
+        'à'=>'a', 'è'=>'e', 'ì'=>'i', 'ò'=>'o', 'ù'=>'u', 'À'=>'A', 'È'=>'E', 'Ì'=>'I', 'Ò'=>'O', 'Ù'=>'U'
+    );
+    return strtr($string, $unwanted_array);
+}

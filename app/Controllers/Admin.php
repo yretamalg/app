@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../../core/Controller.php';
+require_once __DIR__ . '/../../core/ChileanHelper.php';
 require_once __DIR__ . '/../Models/Usuario.php';
 require_once __DIR__ . '/../Models/Rifa.php';
 require_once __DIR__ . '/../Models/Vendedor.php';
@@ -9,9 +10,7 @@ class Admin extends Controller
 {
     private $usuarioModel;
     private $rifaModel;
-    private $vendedorModel;
-
-    public function __construct()
+    private $vendedorModel;    public function __construct()
     {
         parent::__construct();
         $this->usuarioModel = new Usuario();
@@ -32,22 +31,30 @@ class Admin extends Controller
 
     /**
      * Dashboard para administradores
-     */
-    public function dashboard()
+     */    public function dashboard()
     {
         $this->checkAdminPermission();
         
         // Obtener datos para el dashboard
-        $totalRifas = $this->rifaModel->countRifasByAdmin($this->session->user()['id']);
-        $totalVendedores = $this->vendedorModel->countVendedoresByAdmin($this->session->user()['id']);
-        $ultimasRifas = $this->rifaModel->getLatestRifasByAdmin($this->session->user()['id'], 5);
-        $ventasPorDia = $this->rifaModel->getSalesByDayForLast30Days($this->session->user()['id']);
+        $userId = $this->session->user()['id'];
+        $stats = [
+            'rifas_activas' => $this->rifaModel->countRifasByAdminAndStatus($userId, 'activa'),
+            'rifas_total' => $this->rifaModel->countRifasByAdmin($userId),
+            'vendedores_activos' => $this->vendedorModel->countActiveVendedoresByAdmin($userId),
+            'ventas_mes' => $this->rifaModel->getTotalSalesForCurrentMonth($userId)
+        ];
+        
+        // Obtener rifas recientes
+        $recentRifas = $this->rifaModel->getLatestRifasByAdmin($userId, 5);
+        
+        // Obtener aprobaciones pendientes
+        $pendingApprovals = $this->rifaModel->getPendingApprovalsByAdmin($userId);
         
         $this->render('dashboard/admin', [
-            'totalRifas' => $totalRifas,
-            'totalVendedores' => $totalVendedores,
-            'ultimasRifas' => $ultimasRifas,
-            'ventasPorDia' => $ventasPorDia,
+            'user' => $this->session->user(),
+            'stats' => $stats,
+            'recentRifas' => $recentRifas,
+            'pendingApprovals' => $pendingApprovals,
             'pageTitle' => 'Panel de Administración'
         ]);
     }
@@ -84,10 +91,9 @@ class Admin extends Controller
             'email' => filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL),
             'rut' => filter_input(INPUT_POST, 'rut', FILTER_SANITIZE_STRING),
             'telefono' => filter_input(INPUT_POST, 'telefono', FILTER_SANITIZE_STRING),
-        ];
-        
+        ];        
         // Validar RUT chileno
-        if (!$this->chileanHelper->validarRut($data['rut'])) {
+        if (!ChileanHelper::validateRUT($data['rut'])) {
             $this->session->setFlash('error', 'El RUT ingresado no es válido');
             redirect(url('admin/perfil'));
         }
@@ -131,19 +137,41 @@ class Admin extends Controller
         }
         
         redirect(url('admin/perfil'));
-    }
-
-    /**
-     * Listado de rifas
+    }    /**
+     * Listado de rifas con filtrado y paginación
      */
     public function rifas()
     {
         $this->checkAdminPermission();
         
-        $rifas = $this->rifaModel->getAllByAdmin($this->session->user()['id']);
+        // Parámetros de paginación
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $perPage = 10;
+        $offset = ($currentPage - 1) * $perPage;
+        
+        // Filtros
+        $filters = [
+            'admin_id' => $this->session->user()['id'],
+            'estado' => !empty($_GET['estado']) ? $_GET['estado'] : null,
+            'tipo' => !empty($_GET['tipo']) ? $_GET['tipo'] : null,
+            'search' => !empty($_GET['q']) ? $_GET['q'] : null,
+            'fecha_desde' => !empty($_GET['fecha_desde']) ? $_GET['fecha_desde'] : null,
+            'fecha_hasta' => !empty($_GET['fecha_hasta']) ? $_GET['fecha_hasta'] : null,
+            'limit' => $perPage,
+            'offset' => $offset
+        ];
+        
+        // Obtener rifas con filtro y paginación
+        $rifas = $this->rifaModel->filterRifas($filters);
+        
+        // Obtener total para paginación
+        $total = $this->rifaModel->countFilteredRifas($filters);
+        $totalPages = ceil($total / $perPage);
         
         $this->render('admin/rifas/index', [
             'rifas' => $rifas,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
             'pageTitle' => 'Gestión de Rifas'
         ]);
     }
@@ -480,9 +508,8 @@ class Admin extends Controller
             'id_admin' => $this->session->user()['id'],
             'slug' => $this->generateSlug(filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING))
         ];
-        
-        // Validar RUT chileno
-        if (!$this->chileanHelper->validarRut($data['rut'])) {
+          // Validar RUT chileno
+        if (!ChileanHelper::validateRUT($data['rut'])) {
             $this->session->setFlash('error', 'El RUT ingresado no es válido');
             redirect(url('admin/vendedores/crear'));
         }
@@ -503,7 +530,8 @@ class Admin extends Controller
         
         if ($vendedorId) {
             // Enviar email de bienvenida
-            $this->mailer->enviarEmailBienvenidaVendedor($data['email'], $data['nombre'], filter_input(INPUT_POST, 'password'));
+            // TODO: Implement proper mailer
+            // $this->mailer->enviarEmailBienvenidaVendedor($data['email'], $data['nombre'], filter_input(INPUT_POST, 'password'));
             
             $this->actionLogger->log('vendedor_creado', 'Vendedor creado: ' . $data['nombre'], $this->session->user()['id']);
             $this->session->setFlash('success', 'Vendedor creado correctamente');
@@ -512,14 +540,11 @@ class Admin extends Controller
             $this->session->setFlash('error', 'No se pudo crear el vendedor');
             redirect(url('admin/vendedores/crear'));
         }
-    }
-
-    // Método auxiliar para generar slug único
+    }    // Método auxiliar para generar slug único
     private function generateSlug($string)
     {
         // Reemplazar caracteres especiales y espacios
-        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', 
-            $this->chileanHelper->removeAccents($string))));
+        $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', removeAccents($string))));
         
         // Verificar si el slug ya existe y añadir un número al final si es necesario
         $originalSlug = $slug;

@@ -82,6 +82,23 @@ class Vendedor
         $result = $this->db->query($query, $params);
         return $result[0]['total'];
     }
+      /**
+     * Cuenta los vendedores activos de un administrador
+     * 
+     * @param int $adminId ID del administrador
+     * @return int Número de vendedores activos
+     */
+    public function countActiveVendedoresByAdmin($adminId)
+    {
+        $query = "SELECT COUNT(*) as total FROM {$this->table} 
+                 WHERE id_admin = :adminId 
+                 AND tipo = 'vendedor' 
+                 AND estado = 'activo'";
+                 
+        $params = [':adminId' => $adminId];
+        $result = $this->db->query($query, $params);
+        return $result[0]['total'] ?? 0;
+    }
     
     /**
      * Asigna un vendedor a una rifa
@@ -106,7 +123,8 @@ class Vendedor
                 ':vendedorId' => $vendedorId,
                 ':rifaId' => $rifaId
             ];
-            return $this->db->execute($updateQuery, $updateParams);
+            $this->db->query($updateQuery, $updateParams);
+            return true;
         } else {
             // Insertar nueva asignación
             $insertQuery = "INSERT INTO vendedor_rifa (id_vendedor, id_rifa, comision, fecha_asignacion) 
@@ -116,7 +134,8 @@ class Vendedor
                 ':rifaId' => $rifaId,
                 ':comision' => $comision
             ];
-            return $this->db->execute($insertQuery, $insertParams);
+            $this->db->query($insertQuery, $insertParams);
+            return true;
         }
     }
     
@@ -131,6 +150,7 @@ class Vendedor
     {
         $query = "DELETE FROM vendedor_rifa WHERE id_vendedor = :vendedorId AND id_rifa = :rifaId";
         $params = [':vendedorId' => $vendedorId, ':rifaId' => $rifaId];
-        return $this->db->execute($query, $params);
+        $this->db->query($query, $params);
+        return true;
     }
 }

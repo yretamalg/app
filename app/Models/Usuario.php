@@ -329,4 +329,84 @@ class Usuario extends Model {
         $result = $this->db->query($sql);
         return $result[0]['total'];
     }
+    
+    /**
+     * Verifica si un email ya está registrado
+     * 
+     * @param string $email Email a verificar
+     * @param int $excludeId ID a excluir (para ediciones)
+     * @return bool True si existe, false si no
+     */
+    public function emailExists($email, $excludeId = null) 
+    {
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE email = :email";
+        $params = [':email' => $email];
+        
+        if ($excludeId) {
+            $query .= " AND id != :excludeId";
+            $params[':excludeId'] = $excludeId;
+        }
+        
+        $result = $this->db->query($query, $params);
+        return intval($result[0]['count']) > 0;
+    }
+    
+    /**
+     * Verifica si un RUT ya está registrado
+     * 
+     * @param string $rut RUT a verificar
+     * @param int $excludeId ID a excluir (para ediciones)
+     * @return bool True si existe, false si no
+     */
+    public function rutExists($rut, $excludeId = null) 
+    {
+        // Limpiar formato del RUT
+        $rut = preg_replace('/[^0-9kK]/', '', $rut);
+        
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE rut = :rut";
+        $params = [':rut' => $rut];
+        
+        if ($excludeId) {
+            $query .= " AND id != :excludeId";
+            $params[':excludeId'] = $excludeId;
+        }
+        
+        $result = $this->db->query($query, $params);
+        return intval($result[0]['count']) > 0;
+    }
+    
+    /**
+     * Verifica si un slug ya está en uso
+     * 
+     * @param string $slug Slug a verificar
+     * @param int $excludeId ID a excluir (para ediciones)
+     * @return bool True si existe, false si no
+     */
+    public function slugExists($slug, $excludeId = null) 
+    {
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE slug = :slug";
+        $params = [':slug' => $slug];
+        
+        if ($excludeId) {
+            $query .= " AND id != :excludeId";
+            $params[':excludeId'] = $excludeId;
+        }
+        
+        $result = $this->db->query($query, $params);
+        return intval($result[0]['count']) > 0;
+    }
+    
+    /**
+     * Obtiene un usuario por su ID
+     * 
+     * @param int $id ID del usuario
+     * @return array|bool Datos del usuario o false si no existe
+     */
+    public function getById($id) 
+    {
+        $query = "SELECT * FROM {$this->table} WHERE id = :id";
+        $params = [':id' => $id];
+        $result = $this->db->query($query, $params);
+        return $result ? $result[0] : false;
+    }
 }

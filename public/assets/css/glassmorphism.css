@@ -1,0 +1,241 @@
+/**
+ * Glassmorphism CSS para Rifas Chile
+ * Estilos personalizados para el sistema de gestión de rifas chileno
+ */
+
+/* Variables de color personalizadas */
+:root {
+    --bg-gradient-start: #1a365d;
+    --bg-gradient-end: #4338ca;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-shadow: rgba(31, 38, 135, 0.37);
+    --primary-color: rgba(37, 99, 235, 0.8);
+    --primary-hover: rgba(29, 78, 216, 0.9);
+    --danger-color: rgba(239, 68, 68, 0.8);
+    --success-color: rgba(16, 185, 129, 0.8);
+    --warning-color: rgba(245, 158, 11, 0.8);
+    --text-light: #f9fafb;
+    --text-muted: #9ca3af;
+}
+
+/* Fondo con gradiente para páginas */
+.bg-gradient-chilean {
+    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+    min-height: 100vh;
+}
+
+/* Tarjetas y elementos con efecto glassmorphism */
+.glass-card {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    box-shadow: 0 10px 40px 0 var(--glass-shadow);
+    transform: translateY(-3px);
+}
+
+/* Botones glassmorphism */
+.glass-button {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--text-light);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.glass-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.glass-button-primary {
+    background: var(--primary-color);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: white;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.glass-button-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Notificaciones estilo toast */
+.glass-notification {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-light);
+    min-width: 300px;
+    max-width: 450px;
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+}
+
+.notification-success {
+    background: var(--success-color);
+}
+
+.notification-error {
+    background: var(--danger-color);
+}
+
+.notification-warning {
+    background: var(--warning-color);
+}
+
+/* Animaciones para notificaciones */
+@keyframes slideIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(120%); opacity: 0; }
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s forwards ease-in-out;
+}
+
+.animate-slide-out {
+    animation: slideOut 0.3s forwards ease-in-out;
+}
+
+/* Estilos para campos de formulario */
+.form-input {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-light);
+    width: 100%;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: rgba(37, 99, 235, 0.5);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.form-select {
+    background: rgba(255, 255, 255, 0.08) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    padding-right: 2.5rem;
+    color: var(--text-light);
+    width: 100%;
+    appearance: none;
+}
+
+/* Tablas con estilo glassmorphism */
+.glass-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.glass-table thead th {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-light);
+    font-weight: 500;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.glass-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.glass-table td {
+    padding: 0.75rem 1rem;
+    color: var(--text-light);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Badges para estados */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    text-transform: uppercase;
+}
+
+.badge-success {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: rgba(16, 185, 129, 0.9);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-warning {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: rgba(245, 158, 11, 0.9);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.badge-danger {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: rgba(239, 68, 68, 0.9);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Utilidades especiales para RUT chileno */
+.rut-display {
+    font-family: monospace;
+    letter-spacing: 0.05em;
+}
+
+/* Scroll personalizado */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}

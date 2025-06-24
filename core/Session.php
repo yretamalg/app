@@ -144,8 +144,11 @@ class Session {
         $user = $this->user();
         return $user ? $user['tipo'] : null;
     }
+      public function updateUser($userData) {
+        $this->set('user', $userData);
+    }
     
-    public function updateUser($userData) {
+    public function setUser($userData) {
         $this->set('user', $userData);
     }
     

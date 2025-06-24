@@ -5,7 +5,8 @@ class Rifa extends Model {
     protected $fillable = [
         'admin_id', 'nombre', 'slug', 'descripcion', 'tipo_inventario',
         'cantidad_numeros', 'valor_numero', 'fecha_inicio', 'fecha_fin',
-        'fecha_sorteo', 'estado', 'imagen_rifa', 'configuracion_premios'
+        'fecha_sorteo', 'estado', 'imagen_rifa', 'configuracion_premios',
+        'configuracion_seo', 'configuracion_notificaciones', 'configuracion_acceso'
     ];
 
     public function createRifa($data) {
@@ -83,10 +84,24 @@ class Rifa extends Model {
     }
     
     /**
-     * Verifica si un slug ya existe
+     * Obtiene una rifa por su ID
      * 
-     * @param string $slug Slug a verificar
-     * @param int $excludeId ID a excluir de la búsqueda (para edición)
+     * @param int $id ID de la rifa
+     * @return array|bool Datos de la rifa o false si no existe
+     */
+    public function getById($id) 
+    {
+        $query = "SELECT * FROM {$this->table} WHERE id = :id";
+        $params = [':id' => $id];
+        $result = $this->db->query($query, $params);
+        return $result ? $result[0] : false;
+    }
+    
+    /**
+     * Verifica si un slug existe
+     * 
+     * @param string $slug El slug a verificar
+     * @param int $excludeId ID a excluir (para ediciones)
      * @return bool True si existe, false si no
      */
     public function slugExists($slug, $excludeId = null) 
@@ -100,7 +115,7 @@ class Rifa extends Model {
         }
         
         $result = $this->db->query($query, $params);
-        return $result[0]['count'] > 0;
+        return intval($result[0]['count']) > 0;
     }
     
     /**
@@ -566,5 +581,180 @@ class Rifa extends Model {
         $sql = "SELECT * FROM {$this->table} WHERE estado IN ('publicada', 'en_curso') AND deleted_at IS NULL ORDER BY created_at DESC LIMIT ?";
         $stmt = $this->db->query($sql, [$limit]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    /**
+     * Cuenta las rifas activas de un administrador
+     * 
+     * @param int $adminId ID del administrador
+     * @param string $status Estado ('activa', 'borrador', etc.)
+     * @return int Número de rifas con el estado especificado
+     */
+    public function countRifasByAdminAndStatus($adminId, $status) 
+    {
+        $query = "SELECT COUNT(*) as total FROM {$this->table} WHERE admin_id = :adminId AND estado = :status";
+        $params = [':adminId' => $adminId, ':status' => $status];
+        $result = $this->db->query($query, $params);
+        return $result[0]['total'] ?? 0;
+    }
+    
+    /**
+     * Obtiene el total de ventas para el mes actual de un administrador
+     * 
+     * @param int $adminId ID del administrador
+     * @return float Total de ventas en CLP
+     */
+    public function getTotalSalesForCurrentMonth($adminId) 
+    {
+        $startOfMonth = date('Y-m-01 00:00:00');
+        $endOfMonth = date('Y-m-t 23:59:59');
+        
+        $query = "SELECT COALESCE(SUM(v.monto), 0) as total 
+                  FROM ventas v 
+                  JOIN {$this->table} r ON v.rifa_id = r.id 
+                  WHERE r.admin_id = :adminId 
+                  AND v.created_at BETWEEN :startDate AND :endDate";
+                  
+        $params = [
+            ':adminId' => $adminId,
+            ':startDate' => $startOfMonth,
+            ':endDate' => $endOfMonth
+        ];
+        
+        $result = $this->db->query($query, $params);
+        return $result[0]['total'] ?? 0;
+    }
+    
+    /**
+     * Obtiene las aprobaciones pendientes para un administrador
+     * 
+     * @param int $adminId ID del administrador
+     * @return array Lista de aprobaciones pendientes
+     */
+    public function getPendingApprovalsByAdmin($adminId) 
+    {
+        $query = "SELECT a.* FROM aprobaciones a 
+                  JOIN {$this->table} r ON a.rifa_id = r.id 
+                  WHERE r.admin_id = :adminId AND a.estado = 'pendiente'
+                  ORDER BY a.created_at DESC";
+                  
+        $params = [':adminId' => $adminId];
+        
+        return $this->db->query($query, $params);
+    }
+    
+    /**
+     * Filtra rifas por varios criterios para busquedas avanzadas
+     * 
+     * @param array $filters Criterios de filtrado
+     * @return array Lista de rifas filtradas
+     */
+    public function filterRifas($filters = []) 
+    {
+        $query = "SELECT r.*, 
+                 (SELECT COUNT(*) FROM numeros n WHERE n.rifa_id = r.id AND n.estado = 'vendido') as numeros_vendidos,
+                 r.cantidad_numeros as total_numeros
+                 FROM {$this->table} r WHERE 1=1";
+        $params = [];
+        
+        if (!empty($filters['admin_id'])) {
+            $query .= " AND r.admin_id = :adminId";
+            $params[':adminId'] = $filters['admin_id'];
+        }
+        
+        if (!empty($filters['estado'])) {
+            $query .= " AND r.estado = :estado";
+            $params[':estado'] = $filters['estado'];
+        }
+        
+        if (!empty($filters['tipo'])) {
+            $query .= " AND r.tipo_inventario = :tipo";
+            $params[':tipo'] = $filters['tipo'];
+        }
+        
+        if (!empty($filters['search'])) {
+            $query .= " AND (r.nombre LIKE :search OR r.descripcion LIKE :searchDesc)";
+            $searchTerm = "%" . removeAccents($filters['search']) . "%";
+            $params[':search'] = $searchTerm;
+            $params[':searchDesc'] = $searchTerm;
+        }
+        
+        // Fecha de sorteo (rango)
+        if (!empty($filters['fecha_desde'])) {
+            $query .= " AND r.fecha_sorteo >= :fechaDesde";
+            $params[':fechaDesde'] = $filters['fecha_desde'];
+        }
+        
+        if (!empty($filters['fecha_hasta'])) {
+            $query .= " AND r.fecha_sorteo <= :fechaHasta";
+            $params[':fechaHasta'] = $filters['fecha_hasta'];
+        }
+        
+        // Orden
+        $orderBy = !empty($filters['order_by']) ? $filters['order_by'] : 'created_at';
+        $orderDir = !empty($filters['order_dir']) ? $filters['order_dir'] : 'DESC';
+        
+        $allowedOrderColumns = ['nombre', 'created_at', 'fecha_sorteo', 'valor_numero'];
+        $orderBy = in_array($orderBy, $allowedOrderColumns) ? $orderBy : 'created_at';
+        $orderDir = $orderDir === 'ASC' ? 'ASC' : 'DESC';
+        
+        $query .= " ORDER BY r.$orderBy $orderDir";
+        
+        // Paginación
+        if (isset($filters['limit']) && isset($filters['offset'])) {
+            $query .= " LIMIT :offset, :limit";
+            $params[':offset'] = (int)$filters['offset'];
+            $params[':limit'] = (int)$filters['limit'];
+        }
+        
+        return $this->db->query($query, $params);
+    }
+    
+    /**
+     * Cuenta el total de rifas que coinciden con los filtros
+     * 
+     * @param array $filters Criterios de filtrado
+     * @return int Total de rifas
+     */
+    public function countFilteredRifas($filters = []) 
+    {
+        $query = "SELECT COUNT(*) as total FROM {$this->table} r WHERE 1=1";
+        $params = [];
+        
+        if (!empty($filters['admin_id'])) {
+            $query .= " AND r.admin_id = :adminId";
+            $params[':adminId'] = $filters['admin_id'];
+        }
+        
+        if (!empty($filters['estado'])) {
+            $query .= " AND r.estado = :estado";
+            $params[':estado'] = $filters['estado'];
+        }
+        
+        if (!empty($filters['tipo'])) {
+            $query .= " AND r.tipo_inventario = :tipo";
+            $params[':tipo'] = $filters['tipo'];
+        }
+        
+        if (!empty($filters['search'])) {
+            $query .= " AND (r.nombre LIKE :search OR r.descripcion LIKE :searchDesc)";
+            $searchTerm = "%" . removeAccents($filters['search']) . "%";
+            $params[':search'] = $searchTerm;
+            $params[':searchDesc'] = $searchTerm;
+        }
+        
+        // Fecha de sorteo (rango)
+        if (!empty($filters['fecha_desde'])) {
+            $query .= " AND r.fecha_sorteo >= :fechaDesde";
+            $params[':fechaDesde'] = $filters['fecha_desde'];
+        }
+        
+        if (!empty($filters['fecha_hasta'])) {
+            $query .= " AND r.fecha_sorteo <= :fechaHasta";
+            $params[':fechaHasta'] = $filters['fecha_hasta'];
+        }
+        
+        $result = $this->db->query($query, $params);
+        return $result[0]['total'] ?? 0;
     }
 }

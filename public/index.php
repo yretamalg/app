@@ -90,6 +90,9 @@ try {
     exit;
 }
 
+// Define PUBLIC_PATH for file operations
+define('PUBLIC_PATH', __DIR__ . '/');
+
 // Create router instance
 $router = new Router();
 
